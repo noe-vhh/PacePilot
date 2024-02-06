@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- ... Existing keys ... -->
+
+    <!-- Add the following keys for deep linking -->
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>com.example.pace_pilot</string> <!-- Replace with your bundle identifier -->
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>pacepilot</string> <!-- Replace with your callback URL scheme -->
+            </array>
+        </dict>
+    </array>
+
+    <!-- ... Existing keys ... -->
+
+</dict>
+</plist>
