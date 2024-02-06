@@ -1,6 +1,6 @@
 # PacePilot
 
-![PacePilot Logo](https://github.com/noe-vhh/Pace_Pilot/blob/main/Logo_New.png)
+![PacePilot Logo](https://github.com/noe-vhh/PacePilot/blob/master/Logo_New.png)
 
 ## Disclaimer
 
