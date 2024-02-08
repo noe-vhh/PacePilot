@@ -1,24 +1,26 @@
-// authorization.dart
+// authentication.dart
 // ignore_for_file: avoid_print
 
 import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'dart:convert' show jsonDecode;
 import 'package:http/http.dart' as http;
-import 'strava_variables.dart';
-import 'main.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import 'strava_variables.dart';
 
 const FlutterSecureStorage _storage = FlutterSecureStorage();
 
-Future<void> authenticateWithStrava() async {
+// Modify the function signature to accept the callback directly
+Future<void> authenticateWithStrava(void Function(String? token) setAccessToken) async {
+  
   print('Starting Strava authentication...');
 
   // Construct the URL
   final authorizationUrl = Uri.https('www.strava.com', '/oauth/authorize', {
     'client_id': stravaClientId,
-    'redirect_uri': '$callbackUrlScheme://$callbackUrlPath',
+    'redirect_uri': redirectUri,
     'response_type': 'code',
-    'scope': 'activity:read', // Add your required scopes
+    'scope': scope,
   });
 
   print('Authorization URL: $authorizationUrl');
@@ -43,26 +45,23 @@ Future<void> authenticateWithStrava() async {
     // Use the authorization code to get an access token
     final response = await http.post(tokenUrl, body: {
       'client_id': stravaClientId,
-      'client_secret': 'dea1b26c6ec474eec8e160d2b828a1ab7f07f29f',
-      'redirect_uri': '$callbackUrlScheme://$callbackUrlPath',
+      'client_secret': stravaClientSecret,
+      'redirect_uri': redirectUri,
       'grant_type': 'authorization_code',
       'code': code,
     });
 
-    print('Token Response: $response');
-
     // Get the access token from the response
     final accessToken = jsonDecode(response.body)['access_token'] as String;
 
-    print('Authentication successful. Access Token: $accessToken');
-    
-    // Set the access token in the state
-    if (homeKey.currentState != null) {
-      homeKey.currentState!.setAccessToken(accessToken);
-    }
+    print('Authentication successful.');
+
+    // Call the callback function to set the access token in the state
+    setAccessToken(accessToken);
 
     // Store the access token securely
     await _storage.write(key: 'access_token', value: accessToken);
+    print('Access Token stored successfully.');
 
   } catch (e) {
     print('Authentication failed. Error: $e');
@@ -71,10 +70,14 @@ Future<void> authenticateWithStrava() async {
 
 // Function to get the stored access token
 Future<String?> getStoredAccessToken() async {
-  return await _storage.read(key: 'access_token');
+  print('Attempting to retrieve Access Token...');
+  String? accessToken = await _storage.read(key: 'access_token');
+  print('Access Token retrieved: $accessToken');
+  return accessToken;
 }
 
 // Function to delete the stored access token
 Future<void> deleteStoredAccessToken() async {
   await _storage.delete(key: 'access_token');
+  print('Access Token deleted.');
 }
