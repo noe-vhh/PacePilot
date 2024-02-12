@@ -1,4 +1,4 @@
-//user_profile.dart
+// user_profile.dart
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
@@ -17,6 +17,7 @@ class UserProfile extends StatefulWidget {
 }
 
 class UserProfileState extends State<UserProfile> {
+  // User profile information
   String? username;
   String? name;
   String? surname;
@@ -32,6 +33,7 @@ class UserProfileState extends State<UserProfile> {
     fetchAndSetUserActivitySummary();
   }
 
+  // Fetch user profile information
   Future<void> fetchUserProfile() async {
     try {
       final response = await http.get(
@@ -58,6 +60,7 @@ class UserProfileState extends State<UserProfile> {
     }
   }
 
+  // Fetch and set user activity summary
   Future<void> fetchAndSetUserActivitySummary() async {
     final result = await fetchUserActivitySummary(widget.accessToken, selectedPeriod);
     if (result['success']) {
@@ -75,6 +78,7 @@ class UserProfileState extends State<UserProfile> {
     }
   }
 
+  // Build user profile information widget
   Widget buildProfileInfo(String label, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,6 +89,7 @@ class UserProfileState extends State<UserProfile> {
     );
   }
 
+  // Build widget to display active time information
   Widget buildActiveTimeInfo() {
     if (activeTime != null) {
       final hours = activeTime!.inHours;
@@ -152,27 +157,42 @@ class UserProfileState extends State<UserProfile> {
                 const SizedBox(height: 20),
 
                 // Dropdown menu for selecting period
-                DropdownButton<String>(
-                  value: selectedPeriod,
-                  onChanged: (String? value) {
-                    setState(() {
-                      selectedPeriod = value!;
-                      fetchAndSetUserActivitySummary();
-                    });
-                  },
-                  items: <String>['Week', 'Month', 'Year', 'Previous Year']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Select Period',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          DropdownButton<String>(
+                            value: selectedPeriod,
+                            onChanged: (String? value) {
+                              setState(() {
+                                selectedPeriod = value!;
+                                fetchAndSetUserActivitySummary();
+                              });
+                            },
+                            items: <String>['Week', 'Month', 'Year', 'Previous Year']
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      // Display active time for the selected period
+                      buildActiveTimeInfo(),
+                    ],
+                  ),
                 ),
-
-                const SizedBox(height: 20),
-
-                // Display active time for the selected period
-                buildActiveTimeInfo(),
               ],
             ),
           ),

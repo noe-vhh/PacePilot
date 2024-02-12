@@ -16,15 +16,18 @@ class RunningActivityPage extends StatefulWidget {
 }
 
 class RunningActivityPageState extends State<RunningActivityPage> {
+  // List to store running log data
   List<Map<String, dynamic>> runningLog = [];
   int currentPage = 1;
   int perPage = 50;
 
+  // Summary variables
   String selectedRunningSummaryPeriod = 'Week';
   Duration? runningSummaryActiveTime;
   double runningSummaryTotalDistance = 0.0;
   double runningSummaryAveragePace = 0.0;
 
+  // Variable to control whether to show or hide running log
   String selectedRunningLog = 'Show Running Log';
   String get accessToken => widget.accessToken;
 
@@ -34,15 +37,17 @@ class RunningActivityPageState extends State<RunningActivityPage> {
     initializeData();
   }
 
+  // Initialize data when the widget is created
   Future<void> initializeData() async {
     await retrieveRunningLog();
     fetchAndSetRunningLog();
     fetchAndSetRunningSummary();
   }
 
+  // Fetch and set running log data
   Future<void> fetchAndSetRunningLog() async {
     try {
-      // Function to fetch activities for a given page
+      // Function to fetch a page of running activities
       Future<void> fetchPage(int page) async {
         final apiUrl = Uri.https(
           'www.strava.com',
@@ -58,12 +63,11 @@ class RunningActivityPageState extends State<RunningActivityPage> {
         if (activityResponse.statusCode == 200) {
           final List<dynamic> activities = jsonDecode(activityResponse.body);
 
-          // Clear the log before adding new activities
           setState(() {
             runningLog.clear();
           });
 
-          // Filter and add running activities to the running log
+          // Process each activity and add it to the running log if it's a run
           for (var activity in activities) {
             if (activity['type'] == 'Run') {
               setState(() {
@@ -73,6 +77,7 @@ class RunningActivityPageState extends State<RunningActivityPage> {
                   'distance': activity['distance'],
                   'movingTime': activity['moving_time'],
                   'startDate': activity['start_date'],
+                  'isFavorite': false, // Default to not favorited
                 });
               });
             }
@@ -82,14 +87,12 @@ class RunningActivityPageState extends State<RunningActivityPage> {
         }
       }
 
-      // Fetch pages until an incomplete page is received
+      // Fetch pages until all data is retrieved
       while (true) {
-        // Save the length before fetching the page
         int initialLength = runningLog.length;
 
         await fetchPage(currentPage);
 
-        // Break if the last page is reached
         if (runningLog.length - initialLength < perPage) {
           break;
         }
@@ -97,22 +100,74 @@ class RunningActivityPageState extends State<RunningActivityPage> {
         currentPage++;
       }
 
-      await storeRunningLog(runningLog);
+      // Load and apply favorited runs
+      await retrieveFavoriteRuns();
     } catch (e) {
       print('Error fetching and setting running log: $e');
     }
   }
 
+  // Retrieve favorited runs from SharedPreferences
+  Future<void> retrieveFavoriteRuns() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? storedFavorites = prefs.getStringList('favorite_runs');
+    if (storedFavorites != null) {
+      setState(() {
+        // Mark activities as favorites based on retrieved data
+        for (var runId in storedFavorites) {
+          for (var entry in runningLog) {
+            if (entry['id'].toString() == runId) {
+              entry['isFavorite'] = true;
+              break;
+            }
+          }
+        }
+
+        // Sort the running log with favorites at the top
+        runningLog.sort((a, b) {
+          if (b['isFavorite'] == a['isFavorite']) {
+            return DateTime.parse(b['startDate']).compareTo(DateTime.parse(a['startDate']));
+          }
+          return b['isFavorite'] ? 1 : -1;
+        });
+      });
+    }
+  }
+
+  // Store favorited runs to SharedPreferences and update the UI
+  Future<void> storeFavoriteRuns(List<String> favorites) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setStringList('favorite_runs', favorites);
+
+    // Call the helper method to update runs based on favorites
+    updateFavoriteRuns(favorites);
+  }
+
+  // Update the UI based on favorited runs
+  Future<void> updateFavoriteRuns(List<String> favoritedRuns) async {
+    setState(() {
+      // Sort the running log with favorites at the top
+      runningLog.sort((a, b) {
+        if (b['isFavorite'] == a['isFavorite']) {
+          return DateTime.parse(b['startDate']).compareTo(DateTime.parse(a['startDate']));
+        }
+        return b['isFavorite'] ? 1 : -1;
+      });
+    });
+  }
+
+  // Check if an activity is in the running log
   bool isActivityInLog(dynamic activity) {
-    // Check if the activity with the same id is already in the log
     return runningLog.any((logEntry) => logEntry['id'] == activity['id']);
   }
 
+  // Store running log data to SharedPreferences
   Future<void> storeRunningLog(List<Map<String, dynamic>> log) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('running_log', jsonEncode(log));
   }
 
+  // Retrieve running log data from SharedPreferences
   Future<void> retrieveRunningLog() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? storedRunningLog = prefs.getString('running_log');
@@ -126,11 +181,13 @@ class RunningActivityPageState extends State<RunningActivityPage> {
     }
   }
 
+  // Format duration in HH:mm:ss
   String formatDuration(int seconds) {
     Duration duration = Duration(seconds: seconds);
     return '${duration.inHours}h ${duration.inMinutes.remainder(60)}m ${duration.inSeconds.remainder(60)}s';
   }
 
+  // Calculate pace in min/km
   String calculatePace(double distance, int seconds) {
     int paceMinutes = 0;
     int paceSeconds = 0;
@@ -141,7 +198,6 @@ class RunningActivityPageState extends State<RunningActivityPage> {
       paceMinutes = paceInMinutesPerKm.toInt();
       paceSeconds = ((paceInMinutesPerKm * 60) % 60).toInt();
 
-      // Ensure seconds are not more than 59
       if (paceSeconds >= 60) {
         paceMinutes += 1;
         paceSeconds = 0;
@@ -151,6 +207,7 @@ class RunningActivityPageState extends State<RunningActivityPage> {
     return '$paceMinutes:${paceSeconds.toString().padLeft(2, '0')} min/km';
   }
 
+  // Calculate running summary based on the selected period
   Future<void> calculateRunningSummary(String period) async {
     try {
       final response = await http.get(
@@ -168,6 +225,7 @@ class RunningActivityPageState extends State<RunningActivityPage> {
         DateTime startOfCurrentYear = DateTime(now.year);
         DateTime startOfPreviousYear = DateTime(now.year - 1);
 
+        // Calculate totals based on the selected period
         for (var activity in activities) {
           DateTime startDate = DateTime.parse(activity['start_date']);
           Duration difference = now.difference(startDate);
@@ -204,6 +262,7 @@ class RunningActivityPageState extends State<RunningActivityPage> {
 
         double averagePace = totalRunningTime > 0 ? (totalRunningTime / 60) / (totalRunningDistance / 1000) : 0;
 
+        // Update the state with the calculated summary
         setState(() {
           runningSummaryActiveTime = Duration(seconds: totalRunningTime.toInt());
           runningSummaryTotalDistance = totalRunningDistance / 1000;
@@ -217,10 +276,12 @@ class RunningActivityPageState extends State<RunningActivityPage> {
     }
   }
 
+  // Fetch and set running summary
   void fetchAndSetRunningSummary() {
     calculateRunningSummary(selectedRunningSummaryPeriod);
   }
 
+  // Refresh running log by clearing data and fetching again
   void refreshRunningLog() {
     currentPage = 1;
     runningLog.clear();
@@ -228,13 +289,42 @@ class RunningActivityPageState extends State<RunningActivityPage> {
     fetchAndSetRunningSummary();
   }
 
+  // Toggle favorite status for a run and update the UI
+  void markAsFavorite(String runId) {
+    setState(() {
+      for (var entry in runningLog) {
+        if (entry['id'].toString() == runId) {
+          entry['isFavorite'] = !entry['isFavorite'];
+          break;
+        }
+      }
+
+      // Extract favorited runs and store them
+      List<String> favoritedRuns = [];
+      for (var entry in runningLog) {
+        if (entry['isFavorite']) {
+          favoritedRuns.add(entry['id'].toString());
+        }
+      }
+      storeFavoriteRuns(favoritedRuns);
+    });
+  }
+
+  // Helper method to build star icon based on favorite status
+  Widget buildStarIcon(bool isFavorite) {
+    return Icon(
+      isFavorite ? Icons.star : Icons.star_border,
+      color: isFavorite ? Colors.amber : null,
+    );
+  }
+
+  // Widget to display running summary information
   Widget buildRunningSummaryInfo() {
     if (runningSummaryActiveTime != null) {
       final hours = runningSummaryActiveTime!.inHours;
       final minutes = (runningSummaryActiveTime!.inMinutes % 60);
       final formattedTime = hours > 0 ? '${hours}h ${minutes}m' : '${minutes}m';
 
-      // Convert average pace to minutes and seconds
       final averagePaceMinutes = runningSummaryAveragePace.floor();
       final averagePaceSeconds = ((runningSummaryAveragePace * 60) % 60).floor();
 
@@ -242,9 +332,9 @@ class RunningActivityPageState extends State<RunningActivityPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Running Summary ($selectedRunningSummaryPeriod)', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          Text(formattedTime, style: const TextStyle(fontSize: 16)),
           Text('Total Distance: ${runningSummaryTotalDistance.toStringAsFixed(2)} km', style: const TextStyle(fontSize: 16)),
           Text('Average Pace: $averagePaceMinutes:${averagePaceSeconds.toString().padLeft(2, '0')} min/km', style: const TextStyle(fontSize: 16)),
+          Text('Total Time: $formattedTime', style: const TextStyle(fontSize: 16)),
         ],
       );
     } else {
@@ -255,16 +345,7 @@ class RunningActivityPageState extends State<RunningActivityPage> {
     }
   }
 
-  Widget buildProfileInfo(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        Text(value, style: const TextStyle(fontSize: 16)),
-      ],
-    );
-  }
-
+  // Build the main widget
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -282,21 +363,30 @@ class RunningActivityPageState extends State<RunningActivityPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            DropdownButton<String>(
-              value: selectedRunningSummaryPeriod,
-              onChanged: (String? value) {
-                setState(() {
-                  selectedRunningSummaryPeriod = value!;
-                  fetchAndSetRunningSummary();
-                });
-              },
-              items: <String>['Week', 'Month', 'Year', 'Previous Year']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Select Period',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                DropdownButton<String>(
+                  value: selectedRunningSummaryPeriod,
+                  onChanged: (String? value) {
+                    setState(() {
+                      selectedRunningSummaryPeriod = value!;
+                      fetchAndSetRunningSummary();
+                    });
+                  },
+                  items: <String>['Week', 'Month', 'Year', 'Previous Year']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
 
             const SizedBox(height: 20),
@@ -305,8 +395,15 @@ class RunningActivityPageState extends State<RunningActivityPage> {
 
             const SizedBox(height: 20),
 
+            const Divider(),
+
+            const SizedBox(height: 20),
+
             SwitchListTile(
-              title: const Text('Show Running Log'),
+              title: Text(
+                'Show Running Log',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               value: selectedRunningLog == 'Show Running Log',
               onChanged: (bool value) {
                 setState(() {
@@ -316,6 +413,7 @@ class RunningActivityPageState extends State<RunningActivityPage> {
             ),
             const SizedBox(height: 20),
 
+            // Display running log if selected and log is not empty
             if (selectedRunningLog == 'Show Running Log' && runningLog.isNotEmpty)
               Expanded(
                 child: ListView.builder(
@@ -323,7 +421,18 @@ class RunningActivityPageState extends State<RunningActivityPage> {
                   itemBuilder: (context, index) {
                     final distanceInKm = runningLog[index]['distance'] / 1000.0;
                     return ListTile(
-                      title: Text(runningLog[index]['name']),
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(runningLog[index]['name']),
+                          GestureDetector(
+                            onTap: () {
+                              markAsFavorite(runningLog[index]['id'].toString());
+                            },
+                            child: buildStarIcon(runningLog[index]['isFavorite']),
+                          ),
+                        ],
+                      ),
                       subtitle: Text(
                         'Distance: ${distanceInKm.toStringAsFixed(2)} km\n'
                         'Moving Time: ${formatDuration(runningLog[index]['movingTime'])}\n'
@@ -333,6 +442,7 @@ class RunningActivityPageState extends State<RunningActivityPage> {
                   },
                 ),
               ),
+            // Display message if running log is empty
             if (runningLog.isEmpty)
               const Text(
                 'No running activities found.',
