@@ -306,22 +306,15 @@ class RunningActivityPageState extends State<RunningActivityPage> {
 
             const SizedBox(height: 20),
 
-            DropdownButton<String>(
-              value: selectedRunningLog,
-              onChanged: (String? value) {
+            SwitchListTile(
+              title: const Text('Show Running Log'),
+              value: selectedRunningLog == 'Show Running Log',
+              onChanged: (bool value) {
                 setState(() {
-                  selectedRunningLog = value!;
+                  selectedRunningLog = value ? 'Show Running Log' : 'Hide Running Log';
                 });
               },
-              items: <String>['Show Running Log', 'Hide Running Log']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
             ),
-
             const SizedBox(height: 20),
 
             if (selectedRunningLog == 'Show Running Log' && runningLog.isNotEmpty)
