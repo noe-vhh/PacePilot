@@ -1,3 +1,4 @@
+// main.dart
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'dart:async';
 
 import 'authentication.dart';
 import 'user_profile.dart';
+import 'running_activity.dart'; 
 
 // Make MyHomePageState and homeKey public
 final GlobalKey<MyHomePageState> homeKey = GlobalKey<MyHomePageState>();
@@ -40,6 +42,7 @@ class MyHomePageState extends State<MyHomePage> {
     checkAccessToken();
   }
 
+  // Function to check if there is a stored access token
   Future<void> checkAccessToken() async {
     String? storedToken = await getStoredAccessToken();
     if (storedToken != null) {
@@ -47,6 +50,7 @@ class MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  // Function to set the access token in the state
   void setAccessToken(String? token) {
     setState(() {
       accessToken = token;
@@ -54,10 +58,19 @@ class MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  // Function to log the user out
   void logout() async {
     await deleteStoredAccessToken();
     setAccessToken(null);
     print('User logged out');
+  }
+
+  // Function to navigate to the Running Activity page
+  void navigateToRunningActivityPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const RunningActivityPage()),
+    );
   }
 
   @override
@@ -83,6 +96,7 @@ class MyHomePageState extends State<MyHomePage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
+                        // Display the authentication button if not authenticated
                         if (accessToken == null)
                           Container(
                             padding: const EdgeInsets.all(8.0),
@@ -101,6 +115,7 @@ class MyHomePageState extends State<MyHomePage> {
                             ),
                           ),
                         const SizedBox(height: 20),
+                        // Display user profile if authenticated
                         if (accessToken != null)
                           UserProfile(accessToken: accessToken!),
                       ],
@@ -112,25 +127,41 @@ class MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text('User Profile'),
+      drawer: buildDrawer(),
+    );
+  }
+
+  // Function to build the drawer widget
+  Widget buildDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.blue,
             ),
-            ListTile(
-              title: const Text('Logout'),
-              onTap: () {
-                logout();
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
+            child: Text('User Profile'),
+          ),
+          // ListTile for Running Activity
+          ListTile(
+            title: const Text('Running Activity'),
+            onTap: () {
+              Navigator.pop(context);
+              navigateToRunningActivityPage();
+            },
+          ),
+          // Divider for better visual separation
+          const Divider(),
+          // ListTile for Logout at the bottom
+          ListTile(
+            title: const Text('Logout'),
+            onTap: () {
+              logout();
+              Navigator.pop(context);
+            },
+          ),
+        ],
       ),
     );
   }

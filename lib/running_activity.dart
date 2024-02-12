@@ -7,7 +7,6 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'authentication.dart';
-import 'strava_data.dart';
 
 class RunningActivityPage extends StatefulWidget {
   const RunningActivityPage({Key? key}) : super(key: key);
@@ -23,53 +22,109 @@ class RunningActivityPageState extends State<RunningActivityPage> {
 
   String selectedRunningSummaryPeriod = 'Week';
   Duration? runningSummaryActiveTime;
+  double runningSummaryTotalDistance = 0.0;
+  double runningSummaryAveragePace = 0.0;
 
   String selectedRunningLog = 'Show Running Log';
+  String? accessToken;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeData();
+  }
+
+  Future<void> initializeData() async {
+    await retrieveRunningLog();
+    accessToken = await getStoredAccessToken();
+    fetchAndSetRunningLog();
+    fetchAndSetRunningSummary();
+  }
 
   Future<void> fetchAndSetRunningLog() async {
-    String? accessToken = await getStoredAccessToken();
+    try {
+      // Function to fetch activities for a given page
+      Future<void> fetchPage(int page) async {
+        final apiUrl = Uri.https(
+          'www.strava.com',
+          '/api/v3/athlete/activities',
+          {'page': '$page', 'per_page': '$perPage'},
+        );
 
-    Future<void> fetchPage(int page) async {
-      final apiUrl = Uri.https(
-        'www.strava.com',
-        '/api/v3/athlete/activities',
-        {'page': '$page', 'per_page': '$perPage'},
-      );
+        final activityResponse = await http.get(
+          apiUrl,
+          headers: {'Authorization': 'Bearer $accessToken'},
+        );
 
-      final activityResponse = await http.get(
-        apiUrl,
-        headers: {'Authorization': 'Bearer $accessToken'},
-      );
+        if (activityResponse.statusCode == 200) {
+          final List<dynamic> activities = jsonDecode(activityResponse.body);
 
-      if (activityResponse.statusCode == 200) {
-        final List<dynamic> activities = jsonDecode(activityResponse.body);
+          // Clear the log before adding new activities
+          setState(() {
+            runningLog.clear();
+          });
 
-        for (var activity in activities) {
-          if (activity['type'] == 'Run') {
-            setState(() {
-              runningLog.add({
-                'name': activity['name'],
-                'distance': activity['distance'],
-                'movingTime': activity['moving_time'],
-                'startDate': activity['start_date'],
+          // Filter and add running activities to the running log
+          for (var activity in activities) {
+            if (activity['type'] == 'Run') {
+              setState(() {
+                runningLog.add({
+                  'id': activity['id'],
+                  'name': activity['name'],
+                  'distance': activity['distance'],
+                  'movingTime': activity['moving_time'],
+                  'startDate': activity['start_date'],
+                });
               });
-            });
+            }
           }
+        } else {
+          print('Failed to fetch running log. Status code: ${activityResponse.statusCode}');
         }
-      } else {
-        print('Failed to fetch running log. Status code: ${activityResponse.statusCode}');
       }
-    }
 
-    while (true) {
-      await fetchPage(currentPage);
-      if (runningLog.length % perPage != 0) {
-        break;
+      // Fetch pages until an incomplete page is received
+      while (true) {
+        // Save the length before fetching the page
+        int initialLength = runningLog.length;
+
+        await fetchPage(currentPage);
+
+        // Break if the last page is reached
+        if (runningLog.length - initialLength < perPage) {
+          break;
+        }
+
+        currentPage++;
       }
-      currentPage++;
-    }
 
-    storeRunningLog();
+      await storeRunningLog(runningLog);
+    } catch (e) {
+      print('Error fetching and setting running log: $e');
+    }
+  }
+
+  bool isActivityInLog(dynamic activity) {
+    // Check if the activity with the same id is already in the log
+    return runningLog.any((logEntry) => logEntry['id'] == activity['id']);
+  }
+
+  Future<void> storeRunningLog(List<Map<String, dynamic>> log) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('running_log', jsonEncode(log));
+  }
+
+  Future<void> retrieveRunningLog() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? storedRunningLog = prefs.getString('running_log');
+    if (storedRunningLog != null) {
+      List<dynamic> decodedList = jsonDecode(storedRunningLog);
+      List<Map<String, dynamic>> runningLogList = decodedList.cast<Map<String, dynamic>>();
+
+      setState(() {
+        runningLog = runningLogList;
+      });
+    }
   }
 
   String formatDuration(int seconds) {
@@ -78,46 +133,93 @@ class RunningActivityPageState extends State<RunningActivityPage> {
   }
 
   String calculatePace(double distance, int seconds) {
-    if (distance == 0) {
-      return 'N/A';
+    int paceMinutes = 0;
+    int paceSeconds = 0;
+
+    if (distance > 0) {
+      double paceInMinutesPerKm = (seconds / 60) / (distance / 1000);
+
+      paceMinutes = paceInMinutesPerKm.toInt();
+      paceSeconds = ((paceInMinutesPerKm * 60) % 60).toInt();
+
+      // Ensure seconds are not more than 59
+      if (paceSeconds >= 60) {
+        paceMinutes += 1;
+        paceSeconds = 0;
+      }
     }
-    double pace = seconds / (distance / 1000);
-    int paceMinutes = pace.toInt() ~/ 60;
-    int paceSeconds = (pace % 60).toInt();
+
     return '$paceMinutes:${paceSeconds.toString().padLeft(2, '0')} min/km';
   }
 
-  Future<void> storeRunningLog() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('running_log', jsonEncode(runningLog));
-  }
+  Future<void> calculateRunningSummary(String period) async {
+    try {
+      final response = await http.get(
+        Uri.https('www.strava.com', '/api/v3/athlete/activities'),
+        headers: {'Authorization': 'Bearer $accessToken'},
+      );
 
-  Future<void> retrieveRunningLog() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? storedRunningLog = prefs.getString('running_log');
-    if (storedRunningLog != null) {
-      setState(() {
-        runningLog = jsonDecode(storedRunningLog);
-      });
+      if (response.statusCode == 200) {
+        final List<dynamic> activities = jsonDecode(response.body);
+
+        double totalRunningTime = 0.0;
+        double totalRunningDistance = 0.0;
+
+        DateTime now = DateTime.now();
+        DateTime startOfCurrentYear = DateTime(now.year);
+        DateTime startOfPreviousYear = DateTime(now.year - 1);
+
+        for (var activity in activities) {
+          DateTime startDate = DateTime.parse(activity['start_date']);
+          Duration difference = now.difference(startDate);
+
+          switch (period) {
+            case 'Week':
+              if (difference.inDays <= 7) {
+                totalRunningTime += activity['moving_time']?.toDouble() ?? 0;
+                totalRunningDistance += activity['distance']?.toDouble() ?? 0;
+              }
+              break;
+            case 'Month':
+              if (difference.inDays <= 30) {
+                totalRunningTime += activity['moving_time']?.toDouble() ?? 0;
+                totalRunningDistance += activity['distance']?.toDouble() ?? 0;
+              }
+              break;
+            case 'Year':
+              if (startDate.isAfter(startOfCurrentYear)) {
+                totalRunningTime += activity['moving_time']?.toDouble() ?? 0;
+                totalRunningDistance += activity['distance']?.toDouble() ?? 0;
+              }
+              break;
+            case 'Previous Year':
+              if (startDate.isAfter(startOfPreviousYear) && startDate.isBefore(startOfCurrentYear)) {
+                totalRunningTime += activity['moving_time']?.toDouble() ?? 0;
+                totalRunningDistance += activity['distance']?.toDouble() ?? 0;
+              }
+              break;
+          }
+        }
+
+        totalRunningTime = totalRunningTime.roundToDouble();
+
+        double averagePace = totalRunningTime > 0 ? totalRunningTime / (totalRunningDistance / 1000) / 60 : 0;
+
+        setState(() {
+          runningSummaryActiveTime = Duration(seconds: totalRunningTime.toInt());
+          runningSummaryTotalDistance = totalRunningDistance / 1000;
+          runningSummaryAveragePace = averagePace;
+        });
+      } else {
+        print('Failed to fetch activities. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
     }
   }
 
-  Future<void> fetchAndSetRunningSummary() async {
-    final accessToken = await getStoredAccessToken();
-    final result = await fetchUserActivitySummary(accessToken!, selectedRunningSummaryPeriod);
-    if (result['success']) {
-      final totalActiveSeconds = result['totalActiveTime']?.toDouble() ?? 0;
-      final activeDuration = Duration(seconds: totalActiveSeconds.toInt());
-
-      setState(() {
-        runningSummaryActiveTime = activeDuration;
-      });
-    } else {
-      setState(() {
-        runningSummaryActiveTime = null;
-      });
-      print('Error: ${result['error']}');
-    }
+  void fetchAndSetRunningSummary() {
+    calculateRunningSummary(selectedRunningSummaryPeriod);
   }
 
   void refreshRunningLog() {
@@ -133,11 +235,23 @@ class RunningActivityPageState extends State<RunningActivityPage> {
       final minutes = (runningSummaryActiveTime!.inMinutes % 60);
       final formattedTime = hours > 0 ? '${hours}h ${minutes}m' : '${minutes}m';
 
-      return buildProfileInfo('Active Time ($selectedRunningSummaryPeriod)', formattedTime);
+      // Convert average pace to minutes and seconds
+      final averagePaceMinutes = runningSummaryAveragePace.floor();
+      final averagePaceSeconds = ((runningSummaryAveragePace * 60) % 60).floor();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Running Summary ($selectedRunningSummaryPeriod)', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(formattedTime, style: const TextStyle(fontSize: 16)),
+          Text('Total Distance: ${runningSummaryTotalDistance.toStringAsFixed(2)} km', style: const TextStyle(fontSize: 16)),
+          Text('Average Pace: $averagePaceMinutes:$averagePaceSeconds min/km', style: const TextStyle(fontSize: 16)),
+        ],
+      );
     } else {
-      return buildProfileInfo(
-        'Active Time ($selectedRunningSummaryPeriod)',
-        'No activities recorded for the selected period.',
+      return Text(
+        'Running Summary ($selectedRunningSummaryPeriod): No activities recorded for the selected period.',
+        style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
       );
     }
   }
@@ -150,14 +264,6 @@ class RunningActivityPageState extends State<RunningActivityPage> {
         Text(value, style: const TextStyle(fontSize: 16)),
       ],
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    retrieveRunningLog();
-    fetchAndSetRunningLog();
-    fetchAndSetRunningSummary();
   }
 
   @override
