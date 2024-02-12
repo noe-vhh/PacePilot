@@ -6,10 +6,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'authentication.dart';
-
 class RunningActivityPage extends StatefulWidget {
-  const RunningActivityPage({Key? key}) : super(key: key);
+  final String accessToken;
+
+  const RunningActivityPage({Key? key, required this.accessToken}) : super(key: key);
 
   @override
   RunningActivityPageState createState() => RunningActivityPageState();
@@ -26,7 +26,7 @@ class RunningActivityPageState extends State<RunningActivityPage> {
   double runningSummaryAveragePace = 0.0;
 
   String selectedRunningLog = 'Show Running Log';
-  String? accessToken;
+  String get accessToken => widget.accessToken;
 
   @override
   void initState() {
@@ -36,7 +36,6 @@ class RunningActivityPageState extends State<RunningActivityPage> {
 
   Future<void> initializeData() async {
     await retrieveRunningLog();
-    accessToken = await getStoredAccessToken();
     fetchAndSetRunningLog();
     fetchAndSetRunningSummary();
   }
@@ -53,7 +52,7 @@ class RunningActivityPageState extends State<RunningActivityPage> {
 
         final activityResponse = await http.get(
           apiUrl,
-          headers: {'Authorization': 'Bearer $accessToken'},
+          headers: {'Authorization': 'Bearer ${widget.accessToken}'},
         );
 
         if (activityResponse.statusCode == 200) {
@@ -156,7 +155,7 @@ class RunningActivityPageState extends State<RunningActivityPage> {
     try {
       final response = await http.get(
         Uri.https('www.strava.com', '/api/v3/athlete/activities'),
-        headers: {'Authorization': 'Bearer $accessToken'},
+        headers: {'Authorization': 'Bearer ${widget.accessToken}'},
       );
 
       if (response.statusCode == 200) {
@@ -203,7 +202,7 @@ class RunningActivityPageState extends State<RunningActivityPage> {
 
         totalRunningTime = totalRunningTime.roundToDouble();
 
-        double averagePace = totalRunningTime > 0 ? totalRunningTime / (totalRunningDistance / 1000) / 60 : 0;
+        double averagePace = totalRunningTime > 0 ? (totalRunningTime / 60) / (totalRunningDistance / 1000) : 0;
 
         setState(() {
           runningSummaryActiveTime = Duration(seconds: totalRunningTime.toInt());
@@ -245,7 +244,7 @@ class RunningActivityPageState extends State<RunningActivityPage> {
           Text('Running Summary ($selectedRunningSummaryPeriod)', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           Text(formattedTime, style: const TextStyle(fontSize: 16)),
           Text('Total Distance: ${runningSummaryTotalDistance.toStringAsFixed(2)} km', style: const TextStyle(fontSize: 16)),
-          Text('Average Pace: $averagePaceMinutes:$averagePaceSeconds min/km', style: const TextStyle(fontSize: 16)),
+          Text('Average Pace: $averagePaceMinutes:${averagePaceSeconds.toString().padLeft(2, '0')} min/km', style: const TextStyle(fontSize: 16)),
         ],
       );
     } else {
