@@ -144,21 +144,23 @@ class MyHomePageState extends State<MyHomePage> {
             child: Text('User Profile'),
           ),
           // ListTile for Running Activity
-          ListTile(
-            title: const Text('Running Activity'),
-            onTap: () {
-              Navigator.pop(context);
-              navigateToRunningActivityPage();
-            },
-          ),
-          // Divider for better visual separation
-          const Divider(),
-          // ListTile for Logout at the bottom
-          ListTile(
-            title: const Text('Logout'),
-            onTap: () {
-              logout();
-              Navigator.pop(context);
+          if (accessToken != null)
+            ListTile(
+              title: const Text('Running Activity'),
+              onTap: () {
+                Navigator.pop(context);
+                navigateToRunningActivityPage();
+              },
+            ),
+            // Divider for better visual separation
+            const Divider(),
+            // ListTile for Logout at the bottom
+          if (accessToken != null)
+            ListTile(
+              title: const Text('Logout'),
+              onTap: () {
+                logout();
+                Navigator.pop(context);
             },
           ),
         ],
