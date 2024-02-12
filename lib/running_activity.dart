@@ -329,10 +329,11 @@ class RunningActivityPageState extends State<RunningActivityPage> {
                 child: ListView.builder(
                   itemCount: runningLog.length,
                   itemBuilder: (context, index) {
+                    final distanceInKm = runningLog[index]['distance'] / 1000.0;
                     return ListTile(
                       title: Text(runningLog[index]['name']),
                       subtitle: Text(
-                        'Distance: ${runningLog[index]['distance']} meters\n'
+                        'Distance: ${distanceInKm.toStringAsFixed(2)} km\n'
                         'Moving Time: ${formatDuration(runningLog[index]['movingTime'])}\n'
                         'Pace: ${calculatePace(runningLog[index]['distance'], runningLog[index]['movingTime'])}',
                       ),
