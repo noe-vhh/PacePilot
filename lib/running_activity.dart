@@ -345,7 +345,33 @@ class RunningActivityPageState extends State<RunningActivityPage> {
     }
   }
 
-  // Build the main widget
+  // Widget for detailed run information
+  Widget buildRunDetailsPage(Map<String, dynamic> runDetails) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(runDetails['name']),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Distance: ${runDetails['distance'] / 1000.0} km'),
+            Text('Moving Time: ${formatDuration(runDetails['movingTime'])}'),
+            Text('Start Date: ${runDetails['startDate']}'),
+            Text('Average Pace: ${calculatePace(runDetails['distance'], runDetails['movingTime'])}'),
+            Text('Elevation Gain: ${runDetails['totalElevationGain'] ?? 0} meters'),
+            Text('Calories Burned: ${runDetails['calories'] ?? 0} kcal'),
+            Text('Average Heart Rate: ${runDetails['averageHeartrate'] ?? 'N/A'} bpm'),
+            Text('Max Heart Rate: ${runDetails['maxHeartrate'] ?? 'N/A'} bpm'),
+            // Add more details as needed
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ... (existing build method)
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -424,7 +450,15 @@ class RunningActivityPageState extends State<RunningActivityPage> {
                       title: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(runningLog[index]['name']),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => buildRunDetailsPage(runningLog[index])),
+                              );
+                            },
+                            child: Text(runningLog[index]['name']),
+                          ),
                           GestureDetector(
                             onTap: () {
                               markAsFavorite(runningLog[index]['id'].toString());

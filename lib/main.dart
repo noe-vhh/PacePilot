@@ -8,6 +8,7 @@ import 'authentication.dart';
 import 'user_profile.dart';
 import 'running_activity.dart';
 
+// Global key for accessing MyHomePageState
 final GlobalKey<MyHomePageState> homeKey = GlobalKey<MyHomePageState>();
 
 void main() {
@@ -42,6 +43,7 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> checkAccessToken() async {
+    // Check if there is a stored access token
     String? storedToken = await getStoredAccessToken();
     if (storedToken != null) {
       setState(() {
@@ -51,22 +53,52 @@ class MyHomePageState extends State<MyHomePage> {
   }
 
   void setAccessToken(String? token) {
+    // Set the access token and update the UI
     setState(() {
       accessToken = token;
     });
   }
 
   void logout() async {
+    // Logout functionality: delete stored token, clear access token, and log the user out
     await deleteStoredAccessToken();
     setAccessToken(null);
     print('User logged out');
   }
 
   void navigateToRunningActivityPage() {
+    // Navigate to the Running Activity page
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => RunningActivityPage(accessToken: accessToken!)),
     );
+  }
+
+  List<Widget> buildDrawerItems() {
+    // Build the list of drawer items dynamically based on the user's authentication status
+    List<Widget> items = [];
+
+    if (accessToken != null) {
+      items.add(ListTile(
+        title: const Text('Running Activity'),
+        onTap: () {
+          Navigator.pop(context);
+          navigateToRunningActivityPage();
+        },
+      ));
+
+      items.add(const Divider());
+
+      items.add(ListTile(
+        title: const Text('Logout'),
+        onTap: () {
+          logout();
+          Navigator.pop(context);
+        },
+      ));
+    }
+
+    return items;
   }
 
   Widget buildDrawer() {
@@ -78,25 +110,18 @@ class MyHomePageState extends State<MyHomePage> {
             decoration: BoxDecoration(
               color: Colors.blue,
             ),
-            child: Text('User Profile'),
+            child: Center(
+              child: Text(
+                'User Profile',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ),
-          if (accessToken != null)
-            ListTile(
-              title: const Text('Running Activity'),
-              onTap: () {
-                Navigator.pop(context);
-                navigateToRunningActivityPage();
-              },
-            ),
-          const Divider(),
-          if (accessToken != null)
-            ListTile(
-              title: const Text('Logout'),
-              onTap: () {
-                logout();
-                Navigator.pop(context);
-              },
-            ),
+          ...buildDrawerItems(),
         ],
       ),
     );
@@ -104,6 +129,7 @@ class MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Main Scaffold widget with AppBar, body content, and the dynamic drawer
     return Scaffold(
       appBar: AppBar(
         title: const Text('User Dashboard'),
