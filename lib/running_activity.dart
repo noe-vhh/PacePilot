@@ -4,7 +4,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class RunningActivityPage extends StatefulWidget {
   final String accessToken;
@@ -16,195 +15,17 @@ class RunningActivityPage extends StatefulWidget {
 }
 
 class RunningActivityPageState extends State<RunningActivityPage> {
-  // List to store running log data
-  List<Map<String, dynamic>> runningLog = [];
-  int currentPage = 1;
-  int perPage = 50;
-
   // Summary variables
   String selectedRunningSummaryPeriod = 'Week';
   Duration? runningSummaryActiveTime;
   double runningSummaryTotalDistance = 0.0;
   double runningSummaryAveragePace = 0.0;
 
-  // Variable to control whether to show or hide running log
-  String selectedRunningLog = 'Show Running Log';
-  String get accessToken => widget.accessToken;
-
   @override
   void initState() {
     super.initState();
-    initializeData();
-  }
-
-  // Initialize data when the widget is created
-  Future<void> initializeData() async {
-    await retrieveRunningLog();
-    fetchAndSetRunningLog();
+    // Fetch and set running summary
     fetchAndSetRunningSummary();
-  }
-
-  // Fetch and set running log data
-  Future<void> fetchAndSetRunningLog() async {
-    try {
-      // Function to fetch a page of running activities
-      Future<void> fetchPage(int page) async {
-        final apiUrl = Uri.https(
-          'www.strava.com',
-          '/api/v3/athlete/activities',
-          {'page': '$page', 'per_page': '$perPage'},
-        );
-
-        final activityResponse = await http.get(
-          apiUrl,
-          headers: {'Authorization': 'Bearer ${widget.accessToken}'},
-        );
-
-        if (activityResponse.statusCode == 200) {
-          final List<dynamic> activities = jsonDecode(activityResponse.body);
-
-          setState(() {
-            runningLog.clear();
-          });
-
-          // Process each activity and add it to the running log if it's a run
-          for (var activity in activities) {
-            if (activity['type'] == 'Run') {
-              setState(() {
-                runningLog.add({
-                  'id': activity['id'],
-                  'name': activity['name'],
-                  'distance': activity['distance'],
-                  'movingTime': activity['moving_time'],
-                  'startDate': activity['start_date'],
-                  'isFavorite': false, // Default to not favorited
-                });
-              });
-            }
-          }
-        } else {
-          print('Failed to fetch running log. Status code: ${activityResponse.statusCode}');
-        }
-      }
-
-      // Fetch pages until all data is retrieved
-      while (true) {
-        int initialLength = runningLog.length;
-
-        await fetchPage(currentPage);
-
-        if (runningLog.length - initialLength < perPage) {
-          break;
-        }
-
-        currentPage++;
-      }
-
-      // Load and apply favorited runs
-      await retrieveFavoriteRuns();
-    } catch (e) {
-      print('Error fetching and setting running log: $e');
-    }
-  }
-
-  // Retrieve favorited runs from SharedPreferences
-  Future<void> retrieveFavoriteRuns() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? storedFavorites = prefs.getStringList('favorite_runs');
-    if (storedFavorites != null) {
-      setState(() {
-        // Mark activities as favorites based on retrieved data
-        for (var runId in storedFavorites) {
-          for (var entry in runningLog) {
-            if (entry['id'].toString() == runId) {
-              entry['isFavorite'] = true;
-              break;
-            }
-          }
-        }
-
-        // Sort the running log with favorites at the top
-        runningLog.sort((a, b) {
-          if (b['isFavorite'] == a['isFavorite']) {
-            return DateTime.parse(b['startDate']).compareTo(DateTime.parse(a['startDate']));
-          }
-          return b['isFavorite'] ? 1 : -1;
-        });
-      });
-    }
-  }
-
-  // Store favorited runs to SharedPreferences and update the UI
-  Future<void> storeFavoriteRuns(List<String> favorites) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setStringList('favorite_runs', favorites);
-
-    // Call the helper method to update runs based on favorites
-    updateFavoriteRuns(favorites);
-  }
-
-  // Update the UI based on favorited runs
-  Future<void> updateFavoriteRuns(List<String> favoritedRuns) async {
-    setState(() {
-      // Sort the running log with favorites at the top
-      runningLog.sort((a, b) {
-        if (b['isFavorite'] == a['isFavorite']) {
-          return DateTime.parse(b['startDate']).compareTo(DateTime.parse(a['startDate']));
-        }
-        return b['isFavorite'] ? 1 : -1;
-      });
-    });
-  }
-
-  // Check if an activity is in the running log
-  bool isActivityInLog(dynamic activity) {
-    return runningLog.any((logEntry) => logEntry['id'] == activity['id']);
-  }
-
-  // Store running log data to SharedPreferences
-  Future<void> storeRunningLog(List<Map<String, dynamic>> log) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('running_log', jsonEncode(log));
-  }
-
-  // Retrieve running log data from SharedPreferences
-  Future<void> retrieveRunningLog() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? storedRunningLog = prefs.getString('running_log');
-    if (storedRunningLog != null) {
-      List<dynamic> decodedList = jsonDecode(storedRunningLog);
-      List<Map<String, dynamic>> runningLogList = decodedList.cast<Map<String, dynamic>>();
-
-      setState(() {
-        runningLog = runningLogList;
-      });
-    }
-  }
-
-  // Format duration in HH:mm:ss
-  String formatDuration(int seconds) {
-    Duration duration = Duration(seconds: seconds);
-    return '${duration.inHours}h ${duration.inMinutes.remainder(60)}m ${duration.inSeconds.remainder(60)}s';
-  }
-
-  // Calculate pace in min/km
-  String calculatePace(double distance, int seconds) {
-    int paceMinutes = 0;
-    int paceSeconds = 0;
-
-    if (distance > 0) {
-      double paceInMinutesPerKm = (seconds / 60) / (distance / 1000);
-
-      paceMinutes = paceInMinutesPerKm.toInt();
-      paceSeconds = ((paceInMinutesPerKm * 60) % 60).toInt();
-
-      if (paceSeconds >= 60) {
-        paceMinutes += 1;
-        paceSeconds = 0;
-      }
-    }
-
-    return '$paceMinutes:${paceSeconds.toString().padLeft(2, '0')} min/km';
   }
 
   // Calculate running summary based on the selected period
@@ -281,43 +102,6 @@ class RunningActivityPageState extends State<RunningActivityPage> {
     calculateRunningSummary(selectedRunningSummaryPeriod);
   }
 
-  // Refresh running log by clearing data and fetching again
-  void refreshRunningLog() {
-    currentPage = 1;
-    runningLog.clear();
-    fetchAndSetRunningLog();
-    fetchAndSetRunningSummary();
-  }
-
-  // Toggle favorite status for a run and update the UI
-  void markAsFavorite(String runId) {
-    setState(() {
-      for (var entry in runningLog) {
-        if (entry['id'].toString() == runId) {
-          entry['isFavorite'] = !entry['isFavorite'];
-          break;
-        }
-      }
-
-      // Extract favorited runs and store them
-      List<String> favoritedRuns = [];
-      for (var entry in runningLog) {
-        if (entry['isFavorite']) {
-          favoritedRuns.add(entry['id'].toString());
-        }
-      }
-      storeFavoriteRuns(favoritedRuns);
-    });
-  }
-
-  // Helper method to build star icon based on favorite status
-  Widget buildStarIcon(bool isFavorite) {
-    return Icon(
-      isFavorite ? Icons.star : Icons.star_border,
-      color: isFavorite ? Colors.amber : null,
-    );
-  }
-
   // Widget to display running summary information
   Widget buildRunningSummaryInfo() {
     if (runningSummaryActiveTime != null) {
@@ -345,44 +129,11 @@ class RunningActivityPageState extends State<RunningActivityPage> {
     }
   }
 
-  // Widget for detailed run information
-  Widget buildRunDetailsPage(Map<String, dynamic> runDetails) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(runDetails['name']),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Distance: ${runDetails['distance'] / 1000.0} km'),
-            Text('Moving Time: ${formatDuration(runDetails['movingTime'])}'),
-            Text('Start Date: ${runDetails['startDate']}'),
-            Text('Average Pace: ${calculatePace(runDetails['distance'], runDetails['movingTime'])}'),
-            Text('Elevation Gain: ${runDetails['totalElevationGain'] ?? 0} meters'),
-            Text('Calories Burned: ${runDetails['calories'] ?? 0} kcal'),
-            Text('Average Heart Rate: ${runDetails['averageHeartrate'] ?? 'N/A'} bpm'),
-            Text('Max Heart Rate: ${runDetails['maxHeartrate'] ?? 'N/A'} bpm'),
-            // Add more details as needed
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ... (existing build method)
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Running Activity'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: refreshRunningLog,
-          ),
-        ],
+        title: const Text('Running Dashboard'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -394,7 +145,7 @@ class RunningActivityPageState extends State<RunningActivityPage> {
               children: [
                 Text(
                   'Select Period',
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
                 DropdownButton<String>(
                   value: selectedRunningSummaryPeriod,
@@ -414,74 +165,10 @@ class RunningActivityPageState extends State<RunningActivityPage> {
                 ),
               ],
             ),
-
             const SizedBox(height: 20),
-
             buildRunningSummaryInfo(),
-
             const SizedBox(height: 20),
-
             const Divider(),
-
-            const SizedBox(height: 20),
-
-            SwitchListTile(
-              title: Text(
-                'Show Running Log',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              value: selectedRunningLog == 'Show Running Log',
-              onChanged: (bool value) {
-                setState(() {
-                  selectedRunningLog = value ? 'Show Running Log' : 'Hide Running Log';
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-
-            // Display running log if selected and log is not empty
-            if (selectedRunningLog == 'Show Running Log' && runningLog.isNotEmpty)
-              Expanded(
-                child: ListView.builder(
-                  itemCount: runningLog.length,
-                  itemBuilder: (context, index) {
-                    final distanceInKm = runningLog[index]['distance'] / 1000.0;
-                    return ListTile(
-                      title: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => buildRunDetailsPage(runningLog[index])),
-                              );
-                            },
-                            child: Text(runningLog[index]['name']),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              markAsFavorite(runningLog[index]['id'].toString());
-                            },
-                            child: buildStarIcon(runningLog[index]['isFavorite']),
-                          ),
-                        ],
-                      ),
-                      subtitle: Text(
-                        'Distance: ${distanceInKm.toStringAsFixed(2)} km\n'
-                        'Moving Time: ${formatDuration(runningLog[index]['movingTime'])}\n'
-                        'Pace: ${calculatePace(runningLog[index]['distance'], runningLog[index]['movingTime'])}',
-                      ),
-                    );
-                  },
-                ),
-              ),
-            // Display message if running log is empty
-            if (runningLog.isEmpty)
-              const Text(
-                'No running activities found.',
-                style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
-              ),
           ],
         ),
       ),

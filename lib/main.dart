@@ -7,6 +7,7 @@ import 'dart:async';
 import 'authentication.dart';
 import 'user_profile.dart';
 import 'running_activity.dart';
+import 'running_log.dart';
 
 // Global key for accessing MyHomePageState
 final GlobalKey<MyHomePageState> homeKey = GlobalKey<MyHomePageState>();
@@ -74,16 +75,33 @@ class MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void navigateToRunningLogPage() {
+    // Navigate to the Running Log page
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => RunningLog(accessToken: accessToken!)),
+    );
+  }
+
   List<Widget> buildDrawerItems() {
     // Build the list of drawer items dynamically based on the user's authentication status
     List<Widget> items = [];
 
     if (accessToken != null) {
       items.add(ListTile(
-        title: const Text('Running Activity'),
+        title: const Text('Running Dashboard'),
         onTap: () {
           Navigator.pop(context);
           navigateToRunningActivityPage();
+        },
+      ));
+      
+      
+      items.add(ListTile(
+        title: const Text('Running Log'),
+        onTap: () {
+          Navigator.pop(context);
+          navigateToRunningLogPage();
         },
       ));
 
