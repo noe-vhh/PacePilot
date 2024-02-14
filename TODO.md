@@ -3,18 +3,22 @@
 ## Tasks
 
 - [ ] Move Running log to new page
-    - [ ] Implement:
-        - click on run for more information
-            - allow click anywhere
-            - connect api calling for all info
-            - reformat to be more aestethic
+
+
+- [ ] Implement in running log:
+    - click on run for more information
+        - allow click anywhere
+        - connect api calling for all info
+        - reformat to be more aestethic
         
-        - search function
-        - sort function
-        - filter distances etc.
-        - categorise distances - eg 5's together, 10's together
+    - search function
+    - sort function
+    - filter distances etc.
+    - categorise distances - eg 5's together, 10's together
 
 - [ ] Connect running log and running activities pages
+
+- [ ] Refresh Access Token apon expiration 
 
 - [ ] Implement home dashboard bar with icons to lead to different activities, eg running
 
