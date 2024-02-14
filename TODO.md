@@ -2,13 +2,13 @@
 
 ## Tasks
 
-- [ ] Move Running log to new page
+- [X] Move Running log to new page
 
 
 - [ ] Implement in running log:
-    - [ ] click on run for more information
-    - [ ] allow click anywhere
-    - [ ] connect api calling for all info
+    - [X] click on run for more information
+    - [X] allow click anywhere
+    - [X] connect api calling for all info
     - [ ] reformat to be more aestethic
         
     - [ ] search function
