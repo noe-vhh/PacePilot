@@ -1,4 +1,3 @@
-// running_log.dart
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
@@ -232,7 +231,7 @@ class RunningLogState extends State<RunningLog> {
   }
 
   // Fetch and show detailed activity information
-  Future<void> fetchAndShowDetails(int? activityId) async {
+  Future<void> fetchAndShowDetails(int? activityId, BuildContext context) async {
     if (activityId == null) {
       return; // Do nothing if activityId is null
     }
@@ -252,9 +251,24 @@ class RunningLogState extends State<RunningLog> {
         final Map<String, dynamic>? detailedActivity = jsonDecode(activityResponse.body);
 
         if (detailedActivity != null) {
-          scaffoldKey.currentState?.showBottomSheet(
-            (BuildContext context) {
-              return buildRunDetailsPage(detailedActivity);
+          // ignore: use_build_context_synchronously
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                backgroundColor: const Color(0xFF99BD9C),
+                content: SingleChildScrollView(
+                  child: buildRunDetailsPage(detailedActivity),
+                ),
+                actions: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Close'),
+                  ),
+                ],
+              );
             },
           );
         } else {
@@ -270,45 +284,32 @@ class RunningLogState extends State<RunningLog> {
 
   // Build widget for detailed run details page
   Widget buildRunDetailsPage(Map<String, dynamic> runDetails) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildDetailRow('Distance', '${(double.parse(runDetails['distance']?.toString() ?? '0.0') / 1000.0).toStringAsFixed(2)} km'),
-                  buildDetailRow('Moving Time', formatDuration(runDetails['elapsed_time'] ?? 0)),
-                  buildDetailRow('Start Date', DateFormat.yMd().add_Hms().format(DateTime.parse(runDetails['start_date']))),
-                  buildDetailRow('Average Pace', calculatePace(runDetails['distance'] ?? 0.0, runDetails['elapsed_time'] ?? 0)),
-                  buildDetailRow('Elevation Gain', '${runDetails['total_elevation_gain'] ?? 0} meters'),
-                  buildDetailRow('Calories Burned', '${runDetails['calories'] ?? 0} kcal'),
-                  buildDetailRow('Average Heart Rate', '${runDetails['average_heartrate'] ?? 'N/A'} bpm'),
-                  buildDetailRow('Max Heart Rate', '${runDetails['max_heartrate'] ?? 'N/A'} bpm'),
-                ],
-              ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                buildDetailRow('Distance', '${(double.parse(runDetails['distance']?.toString() ?? '0.0') / 1000.0).toStringAsFixed(2)} km'),
+                buildDetailRow('Moving Time', formatDuration(runDetails['elapsed_time'] ?? 0)),
+                buildDetailRow('Start Date', DateFormat.yMd().add_Hms().format(DateTime.parse(runDetails['start_date']))),
+                buildDetailRow('Average Pace', calculatePace(runDetails['distance'] ?? 0.0, runDetails['elapsed_time'] ?? 0)),
+                buildDetailRow('Elevation Gain', '${runDetails['total_elevation_gain'] ?? 0} meters'),
+                buildDetailRow('Calories Burned', '${runDetails['calories'] ?? 0} kcal'),
+                buildDetailRow('Average Heart Rate', '${runDetails['average_heartrate'] ?? 'N/A'} bpm'),
+                buildDetailRow('Max Heart Rate', '${runDetails['max_heartrate'] ?? 'N/A'} bpm'),
+              ],
             ),
-            Align(
-              alignment: Alignment.center,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Close'),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -352,7 +353,7 @@ class RunningLogState extends State<RunningLog> {
                   itemBuilder: (context, index) {
                     return InkWell(
                       onTap: () {
-                        fetchAndShowDetails(runningLog[index]['id']);
+                        fetchAndShowDetails(runningLog[index]['id'], context);
                       },
                       child: RunDetailsWidget(
                         runDetails: runningLog[index],

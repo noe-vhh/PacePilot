@@ -126,7 +126,7 @@ class MyHomePageState extends State<MyHomePage> {
         children: <Widget>[
           const DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.blue,
+              color: Color(0xFF99BD9C),
             ),
             child: Center(
               child: Text(

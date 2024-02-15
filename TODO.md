@@ -9,7 +9,7 @@
     - [X] click on run for more information
     - [X] allow click anywhere
     - [X] connect api calling for all info
-    - [ ] reformat to be more aestethic
+    - [X] reformat to be more aestethic
         
     - [ ] search function
     - [ ] sort function
