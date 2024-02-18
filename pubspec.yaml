@@ -29,4 +29,4 @@ flutter:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/icon/Logo_New.png"
+  image_path: "assets/icon/ic_launcher_round.png"
