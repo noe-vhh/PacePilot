@@ -35,3 +35,7 @@
 - [ ] User insights and greeting on home dashboard
 
 - [ ] User Goals with circular indicator
+
+- [ ] Add Splash Screen
+
+- [ ] Add animations
