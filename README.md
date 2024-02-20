@@ -1,7 +1,6 @@
 # PacePilot
 
-![PacePilot Logo](https://github.com/noe-vhh/PacePilot/blob/master/assets/PacePilot.png)
-
+![PacePilot Logo](https://github.com/noe-vhh/PacePilot/blob/master/assets/icon/PacePilot.png)
 ## Disclaimer
 
 > PacePilot is an evolving project, representing my ongoing learning journey. As I develop this app, I welcome feedback, tips, and constructive input to enhance its features and user experience. Your insights are valuable, and I appreciate collaborative engagement in refining this running companion app. Thank you for your understanding and support.
