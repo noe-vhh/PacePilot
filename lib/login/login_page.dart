@@ -1,6 +1,7 @@
 // login_page.dart
-import 'package:flutter/material.dart';
+// ignore_for_file: use_build_context_synchronously
 
+import 'package:flutter/material.dart';
 import '/services/authentication.dart';
 import '/home/home_page.dart';
 
@@ -16,15 +17,13 @@ class LoginPage extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () async {
-            // Capture the context before entering the asynchronous block
-            BuildContext? currentContext = context;
-
-            // Simulate login
+            // Attempt to authenticate with Strava
             String? token = await authenticateWithStrava();
+
             if (token != null) {
-              // ignore: use_build_context_synchronously
+              // If authentication successful, navigate to Dashboard
               Navigator.pushReplacement(
-                currentContext,
+                context,
                 MaterialPageRoute(builder: (context) => DashboardPage(accessToken: token)),
               );
             }

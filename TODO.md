@@ -16,11 +16,9 @@
     - [ ] filter distances etc.
     - [ ] categorise distances - eg 5's together, 10's together
 
-- [ ] Connect running log and running activities pages
-
-- [ ] Refresh Access Token apon expiration 
-
 - [ ] Implement home dashboard bar with icons to lead to different activities, eg running
+
+- [ ] Connect running log and running activities pages
 
 - [ ] Make running activities page a dashboard for running
 
@@ -30,8 +28,6 @@
     - API calling all in one page etc.
     - Make code modular to allow to be applied to different activities, cycling etc.
 
-- [ ] Add comments to code
-
 - [ ] User insights and greeting on home dashboard
 
 - [ ] User Goals with circular indicator
@@ -39,3 +35,5 @@
 - [ ] Add Splash Screen
 
 - [ ] Add animations
+
+- [ ] Add flutter UI theme
