@@ -31,49 +31,6 @@ PacePilot is your running companion app, providing personalized insights, dynami
 
 > The application does not run yet 
 
-### Installation
-
-1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/yourusername/PacePilot.git
-   ```
-
-2. **Navigate to the Project Directory:**
-   ```bash
-   cd PacePilot
-   ```
-
-3. **Install Dependencies:**
-   ```bash
-   flutter pub get
-   ```
-
-### Running the App
-
-#### Android
-
-1. **Open Emulator or Connect Android Device:**
-   - Ensure your Android emulator is running or connect your Android device.
-
-2. **Run the App:**
-   ```bash
-   flutter run
-   ```
-
-#### iOS
-
-1. **Open Simulator or Connect iOS Device:**
-   - Ensure your iOS simulator is running or connect your iOS device.
-
-2. **Run the App:**
-   ```bash
-   flutter run
-   ```
-
-### Explore PacePilot
-
-Once the app is successfully running on your preferred platform, explore PacePilot's features by navigating through the intuitive user interface. Track your running data, view personalized insights, and set goals to enhance your running experience.
-
 ## Publishing Goals
 
 Our aim is to publish PacePilot on both the Play Store and the App Store to reach a broader audience of runners. Your support and contributions bring us closer to achieving this goal. Stay tuned for updates on our journey to make PacePilot available for Android and iOS users worldwide.
