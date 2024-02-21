@@ -6,6 +6,7 @@ import '/login/login_page.dart';
 import 'home_user_profile.dart';
 import '/activity_dashboard/activity.dart';
 import '/activity_log/log.dart';
+import '/../services/authentication.dart';  // Import the authentication file
 
 class DashboardPage extends StatefulWidget {
   final String accessToken;
@@ -83,9 +84,8 @@ class DashboardPageState extends State<DashboardPage> {
     items.add(ListTile(
       title: const Text('Logout'),
       onTap: () {
-        // Implement logout logic here if needed
-        Navigator.pop(context);
-        navigateToLoginPage();
+        // Implement logout logic here
+        logout();
       },
     ));
 
@@ -135,6 +135,15 @@ class DashboardPageState extends State<DashboardPage> {
       context,
       MaterialPageRoute(builder: (context) => Log(accessToken: widget.accessToken)),
     );
+  }
+
+  // Logout logic
+  void logout() {
+    // Delete stored access token and refresh token
+    deleteStoredAccessToken();
+
+    // Navigate to the login page (with replacement to clear navigation stack)
+    navigateToLoginPage();
   }
 
   // Navigate to Login Page (with replacement to clear navigation stack)
