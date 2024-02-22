@@ -2,29 +2,31 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import '/../services/authentication.dart';
-import '/../home/home_page.dart';
+
+// Importing necessary libraries
+import '../assets/theme.dart';
+import '../services/authentication.dart';
+import '../home/home_page.dart';
+import '../assets/horizontal_gradient_divider.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Scaffold widget provides basic structure for the visual interface
     return Scaffold(
       body: SingleChildScrollView(
+        // SingleChildScrollView allows the content to be scrollable
         child: Container(
           height: MediaQuery.of(context).size.height,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment(0.163, 0.844),
-              end: Alignment(-0.844, 0.806),
-              colors: [Color.fromRGBO(104, 108, 107, 1), Color.fromRGBO(64, 64, 64, 1)],
-            ),
+          decoration: BoxDecoration(
+            gradient: AppTheme.backgroundGradient,
           ),
           child: Stack(
             alignment: Alignment.center,
             children: <Widget>[
-              // Logo
+              // Logo positioned at the top
               Positioned(
                 top: 30,
                 child: ClipRRect(
@@ -38,56 +40,27 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
               // Divider 1
-              Positioned(
+              const Positioned(
                 top: 280,
-                child: Container(
-                  width: 340,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    gradient: const LinearGradient(
-                      begin: Alignment(0.981, 0.0),
-                      end: Alignment(0.0, 0.000135811904),
-                      colors: [Color.fromRGBO(153, 188, 157, 1), Color.fromRGBO(89, 114, 111, 1)],
-                    ),
-                  ),
-                ),
+                child: HorizontalGradientDivider(),
               ),
               // Divider 2
-              Positioned(
+              const Positioned(
                 top: 400,
-                child: Container(
-                  width: 340,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    gradient: const LinearGradient(
-                      begin: Alignment(0.981, 0.0),
-                      end: Alignment(0.0, 0.000135811904),
-                      colors: [Color.fromRGBO(153, 188, 157, 1), Color.fromRGBO(89, 114, 111, 1)],
-                    ),
-                  ),
-                ),
+                child: HorizontalGradientDivider(),
               ),
               // App description
-              const Positioned(
-                top: 325,
+              Positioned(
+                top: 310,
                 child: SizedBox(
                   width: 320,
                   child: Wrap(
                     alignment: WrapAlignment.center,
                     children: [
                       Text(
-                        'Your running companion app for personalised insights, dynamic statistics, and actionable goals.',
+                        'Your running companion app for personalized insights, dynamic statistics, and actionable goals.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Color.fromRGBO(255, 255, 255, 1),
-                          fontFamily: 'Sansation',
-                          fontSize: 15,
-                          letterSpacing: 0,
-                          fontWeight: FontWeight.normal,
-                          height: 1,
-                        ),
+                        style: AppTheme.buildTextTheme().bodyLarge,
                       ),
                     ],
                   ),
@@ -110,19 +83,15 @@ class LoginPage extends StatelessWidget {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(153, 189, 156, 1),
+                    backgroundColor: AppTheme.themeData.elevatedButtonTheme.style!.backgroundColor!.resolve({}),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
                       'Login',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'Sansation',
-                        fontSize: 20,
-                      ),
+                      style: AppTheme.buildTextTheme().labelLarge,
                     ),
                   ),
                 ),

@@ -22,7 +22,6 @@ class DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('User Dashboard'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -105,7 +104,7 @@ class DashboardPageState extends State<DashboardPage> {
             ),
             child: Center(
               child: Text(
-                'User Profile',
+                'Dashboard',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
