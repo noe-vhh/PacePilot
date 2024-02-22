@@ -41,23 +41,27 @@ class AppTheme {
   // Define a static method to build the text theme for the application
   static TextTheme buildTextTheme() {
     return const TextTheme(
+      // Large display text style
       displayLarge: TextStyle(
         fontSize: 24.0,
         fontWeight: FontWeight.bold,
         color: Colors.white,
         fontFamily: 'Sansation',
       ),
+      // Medium display text style
       displayMedium: TextStyle(
         fontSize: 20.0,
         fontWeight: FontWeight.bold,
         color: Colors.white,
         fontFamily: 'Sansation',
       ),
+      // Large body text style
       bodyLarge: TextStyle(
         fontSize: 15.0,
         color: Colors.white,
         fontFamily: 'Sansation',
       ),
+      // Large label text style
       labelLarge: TextStyle(
         fontSize: 20.0,
         color: Colors.white,
