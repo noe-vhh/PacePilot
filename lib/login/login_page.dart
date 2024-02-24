@@ -1,12 +1,11 @@
 // login_page.dart
-// ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 
-// Importing necessary libraries
-import '../assets/theme.dart';
-import '../services/authentication.dart';
 import '../home/home_page.dart';
+import '../services/authentication.dart';
+
+import '../assets/theme.dart';
 import '../assets/horizontal_gradient_divider.dart';
 
 class LoginPage extends StatelessWidget {
@@ -14,88 +13,112 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Scaffold widget provides basic structure for the visual interface
     return Scaffold(
       body: SingleChildScrollView(
-        // SingleChildScrollView allows the content to be scrollable
         child: Container(
           height: MediaQuery.of(context).size.height,
           decoration: BoxDecoration(
             gradient: AppTheme.backgroundGradient,
           ),
           child: Stack(
-            alignment: Alignment.center,
+            fit: StackFit.expand,
             children: <Widget>[
-              // Logo positioned at the top
+              // Background Container
               Positioned(
-                top: 30,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Image.asset(
-                    'assets/icon/PacePilot.png',
-                    width: 300,
-                    height: 200,
-                    fit: BoxFit.cover,
+                top: 84,
+                left: 0,
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 730,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(40),
+                    color: AppTheme.primaryColor,
                   ),
                 ),
               ),
-              // Divider 1
-              const Positioned(
-                top: 280,
-                child: HorizontalGradientDivider(),
-              ),
-              // Divider 2
-              const Positioned(
-                top: 400,
-                child: HorizontalGradientDivider(),
-              ),
-              // App description
+
+              // Logo Image
               Positioned(
-                top: 310,
-                child: SizedBox(
-                  width: 320,
-                  child: Wrap(
-                    alignment: WrapAlignment.center,
-                    children: [
-                      Text(
-                        'Your running companion app for personalized insights, dynamic statistics, and actionable goals.',
-                        textAlign: TextAlign.center,
-                        style: AppTheme.buildTextTheme().bodyLarge,
-                      ),
-                    ],
+                top: (MediaQuery.of(context).size.height) / 8,
+                left: (MediaQuery.of(context).size.width - 300) / 2,
+                child: Image.asset(
+                  'assets/icon/PacePilot.png',
+                  width: 300,
+                  height: 200,
+                  fit: BoxFit.cover,
+                ),
+              ),
+
+              // Main Container
+              Positioned(
+                top: 320,
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 600,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(40),
+                    gradient: const LinearGradient(
+                      begin: Alignment(1, -2.6043924350460657e-8),
+                      end: Alignment(-2.69978675866185e-16, 1.8829938173294067),
+                      colors: [Color.fromRGBO(255, 255, 255, 1), Color.fromRGBO(228, 228, 228, 1)],
+                    ),
                   ),
                 ),
               ),
-              // Login Button
+
+              // Login Button with Click Animation
               Positioned(
-                top: 700,
-                child: ElevatedButton(
+                top: 750,
+                left: (MediaQuery.of(context).size.width / 2) - 60,
+                child: MaterialButton(
                   onPressed: () async {
                     // Attempt to authenticate with Strava
                     String? token = await authenticateWithStrava();
 
                     if (token != null) {
                       // If authentication successful, navigate to Dashboard
+                      // ignore: use_build_context_synchronously
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => DashboardPage(accessToken: token)),
                       );
                     }
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.themeData.elevatedButtonTheme.style!.backgroundColor!.resolve({}),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Center(
-                    child: Text(
-                      'Login',
-                      style: AppTheme.buildTextTheme().labelLarge,
-                    ),
+                  elevation: 5.0,
+                  color: AppTheme.primaryColor,
+                  padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                  child: const Text(
+                    'LOG IN',
+                    textAlign: TextAlign.center,
+                    style: AppTheme.labelText,
                   ),
                 ),
               ),
+
+              // Description Text
+              Positioned(
+                top: (MediaQuery.of(context).size.height) / 2 + 35,
+                left: 50,
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width - 100,
+                  ),
+                  child: const Text(
+                    'Your running companion app for personalised insights, dynamic statistics, and actionable goals.',
+                    textAlign: TextAlign.center,
+                    style: AppTheme.bodyText,
+                  ),
+                ),
+              ),
+
+              // First Gradient Divider
+              HorizontalGradientDivider(top: (MediaQuery.of(context).size.height) / 2),
+
+              // Second Gradient Divider
+              HorizontalGradientDivider(top: (MediaQuery.of(context).size.height) / 1.5),
             ],
           ),
         ),

@@ -3,70 +3,93 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Define a static method to get the background gradient
+  // Colors
+  static const Color primaryColor = Color.fromRGBO(153, 189, 156, 1);
+  static const Color secondaryColor = Color.fromRGBO(89, 114, 111, 1);
+  static const Color textColor = Color.fromRGBO(104, 108, 107, 1);
+
+  // Box Shadow
+  static const BoxShadow defaultBoxShadow = BoxShadow(
+    color: Color.fromRGBO(0, 0, 0, 0.25),
+    offset: Offset(0, 4),
+    blurRadius: 4,
+  );
+
+  // Text Styles
+  static const TextStyle heading1 = TextStyle(
+    fontSize: 24.0,
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+    fontFamily: 'Sansation',
+  );
+
+  static const TextStyle heading2 = TextStyle(
+    fontSize: 20.0,
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+    fontFamily: 'Sansation',
+  );
+
+  static const TextStyle bodyText = TextStyle(
+    fontSize: 16.0,
+    color: textColor,
+    fontFamily: 'Sansation',
+    height: 1.5,
+  );
+
+  static const TextStyle labelText = TextStyle(
+    fontSize: 20.0,
+    color: Colors.white,
+    fontFamily: 'Sansation',
+  );
+
+  // Button and Input Decoration Themes
+  static final ElevatedButtonThemeData elevatedButtonTheme = ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: primaryColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+    ),
+  );
+
+  static final InputDecorationTheme inputDecorationTheme = InputDecorationTheme(
+    fillColor: Colors.white,
+    filled: true,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10.0),
+    ),
+    hintStyle: const TextStyle(
+      color: Colors.grey,
+    ),
+  );
+
+  // Gradient for Background
   static LinearGradient get backgroundGradient {
     return const LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
-      colors: [Color.fromRGBO(104, 108, 107, 1), Color.fromRGBO(64, 64, 64, 1)],
+      colors: [Color.fromRGBO(255, 255, 255, 1), Color.fromRGBO(228, 228, 228, 1)],
     );
   }
 
-  // Define a static method to get the overall theme data for the application
+  // Complete ThemeData for the App
   static ThemeData get themeData {
     return ThemeData(
       scaffoldBackgroundColor: Colors.transparent,
-      textTheme: buildTextTheme(), // Utilize the defined text theme
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color.fromRGBO(153, 189, 156, 1),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        fillColor: Colors.white,
-        filled: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        hintStyle: const TextStyle(
-          color: Colors.grey,
-        ),
-      ),
+      textTheme: buildTextTheme(),
+      elevatedButtonTheme: elevatedButtonTheme,
+      inputDecorationTheme: inputDecorationTheme,
     );
   }
 
-  // Define a static method to build the text theme for the application
+  // Building Text Theme
   static TextTheme buildTextTheme() {
     return const TextTheme(
-      // Large display text style
-      displayLarge: TextStyle(
-        fontSize: 24.0,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-        fontFamily: 'Sansation',
-      ),
-      // Medium display text style
-      displayMedium: TextStyle(
-        fontSize: 20.0,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-        fontFamily: 'Sansation',
-      ),
-      // Large body text style
-      bodyLarge: TextStyle(
-        fontSize: 15.0,
-        color: Colors.white,
-        fontFamily: 'Sansation',
-      ),
-      // Large label text style
-      labelLarge: TextStyle(
-        fontSize: 20.0,
-        color: Colors.white,
-        fontFamily: 'Sansation',
-      ),
+      displayLarge: heading1,
+      displayMedium: heading2,
+      bodyLarge: bodyText,
+      labelLarge: labelText,
     );
   }
 }
