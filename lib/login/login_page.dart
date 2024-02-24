@@ -2,11 +2,12 @@
 
 import 'package:flutter/material.dart';
 
+// Import necessary dependencies and components
 import '../home/home_page.dart';
 import '../services/authentication.dart';
-
 import '../assets/theme.dart';
 import '../assets/horizontal_gradient_divider.dart';
+import '../assets/gradient_button.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -57,20 +58,16 @@ class LoginPage extends StatelessWidget {
                   height: 600,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(40),
-                    gradient: const LinearGradient(
-                      begin: Alignment(1, -2.6043924350460657e-8),
-                      end: Alignment(-2.69978675866185e-16, 1.8829938173294067),
-                      colors: [Color.fromRGBO(255, 255, 255, 1), Color.fromRGBO(228, 228, 228, 1)],
-                    ),
+                    gradient: AppTheme.backgroundGradient,
                   ),
                 ),
               ),
 
-              // Login Button with Click Animation
+              // Login Button
               Positioned(
                 top: 750,
                 left: (MediaQuery.of(context).size.width / 2) - 60,
-                child: MaterialButton(
+                child: GradientButton(
                   onPressed: () async {
                     // Attempt to authenticate with Strava
                     String? token = await authenticateWithStrava();
@@ -84,17 +81,7 @@ class LoginPage extends StatelessWidget {
                       );
                     }
                   },
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 5.0,
-                  color: AppTheme.primaryColor,
-                  padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-                  child: const Text(
-                    'LOG IN',
-                    textAlign: TextAlign.center,
-                    style: AppTheme.labelText,
-                  ),
+                  text: 'LOG IN',
                 ),
               ),
 
