@@ -30,6 +30,13 @@ class AppTheme {
     fontFamily: 'Sansation',
   );
 
+  static const TextStyle heading3 = TextStyle(
+    fontSize: 25.0,
+    fontWeight: FontWeight.bold,
+    color: Colors.black,
+    fontFamily: 'Sansation',
+  );
+
   static const TextStyle bodyText = TextStyle(
     fontSize: 16.0,
     color: textColor,
@@ -40,6 +47,12 @@ class AppTheme {
   static const TextStyle labelText = TextStyle(
     fontSize: 20.0,
     color: Colors.white,
+    fontFamily: 'Sansation',
+  );
+
+  static const TextStyle labelText2 = TextStyle(
+    fontSize: 15.0,
+    color: Colors.black,
     fontFamily: 'Sansation',
   );
 
