@@ -28,6 +28,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icon/PacePilot.png
+    - assets/images/Running_Icon.png
 
 flutter_icons:
   android: true

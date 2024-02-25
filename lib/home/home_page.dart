@@ -21,6 +21,17 @@ class DashboardPage extends StatefulWidget {
 }
 
 class DashboardPageState extends State<DashboardPage> {
+  late UserProfile userProfile;
+  late UserActive userActive;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize UserProfile and UserActive widgets with the provided accessToken
+    userProfile = UserProfile(accessToken: widget.accessToken);
+    userActive = UserActive(accessToken: widget.accessToken);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Theme(
@@ -30,27 +41,134 @@ class DashboardPageState extends State<DashboardPage> {
           title: Text(
             'Dashboard',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontWeight: FontWeight.bold,
                 ),
           ),
           centerTitle: true,
-          backgroundColor: const Color(0xFF99BD9C),
+          backgroundColor: Colors.white,
         ),
         body: Container(
           decoration: BoxDecoration(
             gradient: AppTheme.backgroundGradient,
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                UserProfile(accessToken: widget.accessToken),
-                UserActive(accessToken: widget.accessToken),
-              ],
-            ),
+          child: Stack(
+            children: <Widget>[
+              Container(
+                width: double.infinity,
+                height: 800,
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  ),
+                  gradient: LinearGradient(
+                    begin: Alignment(1, -2.9434392700977696e-8),
+                    end: Alignment(-2.220446049250313e-16, 4.938271522521973),
+                    colors: [Color.fromRGBO(255, 255, 255, 1), Color.fromRGBO(228, 228, 228, 1)],
+                  ),
+                ),
+                child: Stack(
+                  children: <Widget>[
+                    Positioned(
+                      top: 60,
+                      left: 4.547473508864641e-13,
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: 830,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(40),
+                            topRight: Radius.circular(40),
+                            bottomLeft: Radius.circular(40),
+                            bottomRight: Radius.circular(40),
+                          ),
+                          color: Color.fromRGBO(153, 189, 156, 1),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 110,
+                      left: MediaQuery.of(context).size.width / 2 - 160,  
+                      child: Container(
+                        width: 320,
+                        height: 53,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                            bottomLeft: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
+                          ),
+                          boxShadow: [BoxShadow(color: Color.fromRGBO(0, 0, 0, 0.25),
+                            offset: Offset(0, 4),
+                            blurRadius: 4),],
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 117,
+                      left: MediaQuery.of(context).size.width / 2 - 20,  
+                      child: SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: Stack(
+                          children: <Widget>[
+                            Positioned(
+                              top: 0,
+                              left: 0,
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(8),
+                                    topRight: Radius.circular(8),
+                                    bottomLeft: Radius.circular(8),
+                                    bottomRight: Radius.circular(8),
+                                  ),
+                                  color: Colors.white,
+                                border : Border.all(
+                                  color: const Color.fromRGBO(0, 0, 0, 1),
+                                  width: 1,
+                                )),
+                              ),
+                            ),
+                            Positioned(
+                              top: 6,
+                              left: 7,
+                              child: Container(
+                                width: 27,
+                                height: 28,
+                                decoration: const BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage('assets/images/Running_Icon.png'),
+                                    fit: BoxFit.fitWidth,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 180, 
+                      left: MediaQuery.of(context).size.width / 2 - 150, 
+                      child: userProfile,
+                    ),
+                    Positioned(
+                      top: 580, 
+                      left: 20, 
+                      child: userActive,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
         drawer: buildDrawer(),

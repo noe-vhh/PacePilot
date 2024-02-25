@@ -63,6 +63,7 @@ class UserProfileState extends State<UserProfile> {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Card(
+        color: Colors.white,
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),

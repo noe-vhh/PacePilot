@@ -84,6 +84,7 @@ class UserActiveState extends State<UserActive> {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Card(
+        color: Colors.white,
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
