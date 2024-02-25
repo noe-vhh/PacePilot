@@ -5,10 +5,11 @@ import 'package:flutter/material.dart';
 // Import necessary files
 import '/login/login_page.dart';
 import 'home_user_profile.dart';
-import '/activity_dashboard/activity.dart';
-import '/activity_log/log.dart';
-import '/../services/authentication.dart'; // Import the authentication file
-import '/../assets/theme.dart'; // Import the path to your theme.dart file
+import 'home_user_active.dart';
+import '/../services/authentication.dart';
+import '/../assets/theme.dart';
+import '/../activity_dashboard/activity.dart';
+import '/../activity_log/log.dart';
 
 class DashboardPage extends StatefulWidget {
   final String accessToken;
@@ -41,27 +42,13 @@ class DashboardPageState extends State<DashboardPage> {
             gradient: AppTheme.backgroundGradient,
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 90.0, horizontal: 10.0),
-            child: Row(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                Expanded(
-                  child: Card(
-                    color: AppTheme.backgroundGradient.colors.first,
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          UserProfile(accessToken: widget.accessToken),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                UserProfile(accessToken: widget.accessToken),
+                UserActive(accessToken: widget.accessToken),
               ],
             ),
           ),
