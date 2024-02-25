@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'home_user_profile_service.dart';
+import '/../assets/theme.dart'; 
 
 class UserProfile extends StatefulWidget {
   final String accessToken;
@@ -52,8 +53,8 @@ class UserProfileState extends State<UserProfile> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        Text(value, style: const TextStyle(fontSize: 16)),
+        Text(label, style: AppTheme.labelText3),
+        Text(value, style: AppTheme.bodyText),
       ],
     );
   }
@@ -63,7 +64,7 @@ class UserProfileState extends State<UserProfile> {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Card(
-        color: Colors.white,
+        color: AppTheme.tertiaryColor,
         elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -75,8 +76,13 @@ class UserProfileState extends State<UserProfile> {
             children: [
               // Display user profile image if available
               if (profileImageUrl != null)
+                Container(
+                  width: 150,
+                  height: 100,
+                  alignment: Alignment.center,
+                  child:
                 CircleAvatar(
-                  radius: 50,
+                  radius: 80, 
                   backgroundColor: Colors.transparent,
                   child: ClipOval(
                     child: Image.network(
@@ -103,7 +109,10 @@ class UserProfileState extends State<UserProfile> {
                     ),
                   ),
                 ),
-              const SizedBox(height: 20),
+                ),
+              
+              const SizedBox(height: 40),
+
               // Display user profile information
               if (username != null) buildProfileInfo('Username', username!),
               if (name != null && surname != null) buildProfileInfo('Name', '$name $surname'),

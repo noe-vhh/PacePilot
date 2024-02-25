@@ -63,7 +63,13 @@ class DashboardPageState extends State<DashboardPage> {
     return Positioned(
       top: 580,
       left: 20,
-      child: userActive,
+      child: Center(
+        child: SizedBox(
+          width: 370,
+          height: 200,
+          child: userActive,
+        ),
+      ),
     );
   }
 

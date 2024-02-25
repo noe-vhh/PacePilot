@@ -6,7 +6,15 @@ class AppTheme {
   // Colors
   static const Color primaryColor = Color.fromRGBO(153, 189, 156, 1);
   static const Color secondaryColor = Color.fromRGBO(89, 114, 111, 1);
+  static const Color tertiaryColor = Colors.white;
   static const Color textColor = Color.fromRGBO(104, 108, 107, 1);
+
+  // Button Colors
+  static const Color selectedButtonColor = Color.fromRGBO(120, 150, 123, 1);
+  static const Color unselectedButtonColor = Color.fromRGBO(153, 189, 156, 1);
+
+  // Font Color
+  static const Color fontColor = Colors.white;
 
   // Box Shadow
   static const BoxShadow defaultBoxShadow = BoxShadow(
@@ -52,6 +60,13 @@ class AppTheme {
 
   static const TextStyle labelText2 = TextStyle(
     fontSize: 15.0,
+    color: Colors.black,
+    fontFamily: 'Sansation',
+  );
+
+  static const TextStyle labelText3 = TextStyle(
+    fontSize: 16.0,
+    fontWeight: FontWeight.bold,
     color: Colors.black,
     fontFamily: 'Sansation',
   );
