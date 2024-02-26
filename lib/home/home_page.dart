@@ -7,7 +7,7 @@ import 'home_user_profile.dart';
 import 'home_user_active.dart';
 
 import '/../services/authentication.dart';
-import '/../activity_dashboard/activity.dart';
+import '../activity_dashboard/activity_dashboard.dart';
 
 import '/../assets/theme.dart';
 import '/../assets/icon_container.dart'; 
@@ -193,7 +193,7 @@ class DashboardPageState extends State<DashboardPage> {
 
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => ActivityPage(accessToken: widget.accessToken)),
+        MaterialPageRoute(builder: (context) => ActivityDashboard(accessToken: widget.accessToken)),
       );
     });
   }
