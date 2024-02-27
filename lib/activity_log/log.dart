@@ -1,12 +1,12 @@
 // log.dart
 
-// Importing necessary libraries
+// Importing necessary files
 import 'package:flutter/material.dart';
 
-// Importing the LogService for fetching and managing running logs
 import 'log_service.dart';
 
-// A StatefulWidget for the RunningLog
+import '/../assets/theme.dart';
+
 class Log extends StatefulWidget {
   final String accessToken;
 
@@ -16,24 +16,19 @@ class Log extends StatefulWidget {
   LogState createState() => LogState();
 }
 
-// State class for the RunningLog
 class LogState extends State<Log> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   List<Map<String, dynamic>> runningLog = [];
-  int currentPage = 1;
-  int perPage = 50;
-  String selectedRunningLog = 'Show Running Log';
 
   String get accessToken => widget.accessToken;
 
   @override
   void initState() {
     super.initState();
-    // Initializing the running log when the page is initialized
     initializeRunningLog();
   }
 
-  // Initializing the running log
+  // Initialize running log data
   void initializeRunningLog() {
     LogService.fetchAndSetRunningLog(accessToken).then((log) {
       setState(() {
@@ -42,48 +37,103 @@ class LogState extends State<Log> {
     });
   }
 
-  // Toggling favorite status of a running log entry
+  // Toggle favorite status of a running log entry
   void toggleFavorite(int index) {
     setState(() {
       runningLog[index]['isFavorite'] = !runningLog[index]['isFavorite'];
 
-      // Extracting the IDs of favorite runs
+      // Get a list of IDs for favorite entries
       List<String> favorites = runningLog
           .where((entry) => entry['isFavorite'])
           .map<String>((entry) => entry['id'].toString())
           .toList();
 
-      // Storing favorite runs
+      // Store favorite runs
       LogService.storeFavoriteRuns(runningLog, favorites);
     });
   }
 
-  // Fetching and showing details of a running activity
+  // Fetch and show details of a running log entry
   Future<void> fetchAndShowDetails(int? activityId, BuildContext context) async {
     if (activityId == null) {
       return;
     }
 
-    // Using the LogService to fetch and show details
     LogService.fetchAndShowDetails(activityId, context, accessToken);
   }
 
-  // Build method for constructing the UI of the RunningLog
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: scaffoldKey,
-      appBar: AppBar(
-        title: const Text('Running Log'),
+    return Theme(
+      data: AppTheme.themeData,
+      child: Scaffold(
+        key: scaffoldKey,
+        appBar: AppBar(
+          title: const Text(
+            'Running Log',
+            style: AppTheme.heading3,
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.white,
+        ),
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: AppTheme.backgroundGradient,
+          ),
+          child: Stack(
+            children: <Widget>[
+              Positioned(
+                top: 60,
+                left: 0,
+                right: 0,
+                bottom: -30,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(40)),
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 90,
+                left: 10,
+                right: 10,
+                bottom: -30,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: _buildRunningLogContent(),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            if (runningLog.isNotEmpty)
-              Expanded(
-                child: ListView.builder(
+    );
+  }
+
+  // Build the content of the running log
+  Widget _buildRunningLogContent() {
+    if (runningLog.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Scrollbar(
+          thumbVisibility: true,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: runningLog.length,
                   itemBuilder: (context, index) {
                     return InkWell(
@@ -99,34 +149,29 @@ class LogState extends State<Log> {
                     );
                   },
                 ),
-              ),
-            if (runningLog.isEmpty)
-              const Text(
-                'No running activities found.',
-                style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
-              ),
-          ],
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-// Widget for displaying details of a running activity
+// Widget to display details of a single run
 class RunDetailsWidget extends StatelessWidget {
   final Map<String, dynamic> runDetails;
   final VoidCallback onStarTap;
 
   const RunDetailsWidget({Key? key, required this.runDetails, required this.onStarTap}) : super(key: key);
 
-  // Build method for constructing the UI of the RunDetailsWidget
   @override
   Widget build(BuildContext context) {
     return ListTile(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(runDetails['name']),
+          Text(runDetails['name'], style: AppTheme.labelText3),
           LogService.buildStarIcon(runDetails['isFavorite'], onStarTap),
         ],
       ),
@@ -134,6 +179,7 @@ class RunDetailsWidget extends StatelessWidget {
         'Distance: ${(runDetails['distance'] / 1000.0).toStringAsFixed(2)} km\n'
         'Moving Time: ${LogService.formatDuration(runDetails['movingTime'])}\n'
         'Pace: ${LogService.calculatePace(runDetails['distance'], runDetails['movingTime'])}',
+        style: AppTheme.bodyText,
       ),
     );
   }

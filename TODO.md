@@ -16,12 +16,6 @@
     - [ ] filter distances etc.
     - [ ] categorise distances - eg 5's together, 10's together
 
-- [ ] Implement home dashboard bar with icons to lead to different activities, eg running
-
-- [ ] Connect running log and running activities pages
-
-- [ ] Make running activities page a dashboard for running
-
 - [ ] Implement Pace Sheet on running activities page
 
 - [ ] Clean code and make more modular
@@ -35,5 +29,3 @@
 - [ ] Add Splash Screen
 
 - [ ] Add animations
-
-- [ ] Add flutter UI theme

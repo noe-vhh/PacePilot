@@ -121,7 +121,7 @@ class DashboardPageState extends State<DashboardPage> {
                           ),
                         ),
                       ),
-                      const IconContainer(), 
+                      const IconContainer(top: 110), 
                       buildRunningIcon(),
                       buildUserProfile(),
                       buildUserActive(),

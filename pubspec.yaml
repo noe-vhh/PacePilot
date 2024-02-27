@@ -29,6 +29,7 @@ flutter:
   assets:
     - assets/icon/PacePilot.png
     - assets/images/Running_Icon.png
+    - assets/images/Log_Icon.png
 
 flutter_icons:
   android: true

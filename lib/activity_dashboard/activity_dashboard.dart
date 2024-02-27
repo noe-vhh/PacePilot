@@ -3,8 +3,11 @@
 import 'package:flutter/material.dart';
 
 import 'summary.dart';
+import '/../activity_log/log.dart';
 
 import '/../assets/theme.dart';
+import '/../assets/icon_container.dart';
+import '/../assets/custom_icon.dart';
 
 class ActivityDashboard extends StatefulWidget {
   final String accessToken;
@@ -17,9 +20,41 @@ class ActivityDashboard extends StatefulWidget {
 }
 
 class ActivityDashboardState extends State<ActivityDashboard> {
+  bool _isLogIconClicked = false;
+
+  // Navigate to Log Page
+  void navigateToLog() {
+    setState(() {
+      _isLogIconClicked = true;
+    });
+
+    Future.delayed(const Duration(milliseconds: 300), () {
+      setState(() {
+        _isLogIconClicked = false;
+      });
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Log(accessToken: widget.accessToken)),
+      );
+    });
+  }
+
+  // Widget to build the Log icon
+  Widget buildLogIcon() {
+    return Positioned(
+      top: 96,
+      left: MediaQuery.of(context).size.width / 2 - 20,
+      child: CustomIcon(
+        imagePath: 'assets/images/Log_Icon.png',
+        onTap: navigateToLog,
+        isClicked: _isLogIconClicked,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Use Theme widget to apply a custom theme to the entire widget tree
     return Theme(
       data: AppTheme.themeData,
       child: Scaffold(
@@ -52,11 +87,14 @@ class ActivityDashboardState extends State<ActivityDashboard> {
               ),
               // Activity Card
               Positioned(
-                top: 90,
+                top: 160,
                 // Center the ActivitySummaryCard horizontally
-                left: (MediaQuery.of(context).size.width - 350) / 2,
+                left: (MediaQuery.of(context).size.width - 332) / 2,
                 child: ActivitySummaryCard(accessToken: widget.accessToken),
               ),
+              // Add IconContainer and CustomIcon
+              const IconContainer(top: 90),
+              buildLogIcon(),
             ],
           ),
         ),

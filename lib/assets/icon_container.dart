@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 import '/../assets/theme.dart';
 
 class IconContainer extends StatelessWidget {
-  const IconContainer({super.key});
+  final double top;
+  
+  const IconContainer({required this.top, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: 110,
+      top: top,
       left: MediaQuery.of(context).size.width / 2 - 160,
       child: Container(
         width: 320,
