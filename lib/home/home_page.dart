@@ -90,44 +90,46 @@ class DashboardPageState extends State<DashboardPage> {
           decoration: BoxDecoration(
             gradient: AppTheme.backgroundGradient,
           ),
-          child: Stack(
-            children: <Widget>[
-              Container(
-                width: double.infinity,
-                height: 800,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                  gradient: LinearGradient(
-                    begin: Alignment(1, -2.9434392700977696e-8),
-                    end: Alignment(-2.220446049250313e-16, 4.938271522521973),
-                    colors: [
-                      Color.fromRGBO(255, 255, 255, 1),
-                      Color.fromRGBO(228, 228, 228, 1),
+          child: SingleChildScrollView( 
+            child: Stack(
+              children: <Widget>[
+                Container(
+                  width: double.infinity,
+                  height: 800,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    gradient: LinearGradient(
+                      begin: Alignment(1, -2.9434392700977696e-8),
+                      end: Alignment(-2.220446049250313e-16, 4.938271522521973),
+                      colors: [
+                        Color.fromRGBO(255, 255, 255, 1),
+                        Color.fromRGBO(228, 228, 228, 1),
+                      ],
+                    ),
+                  ),
+                  child: Stack(
+                    children: <Widget>[
+                      Positioned(
+                        top: 60,
+                        left: 0,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 830,
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(40)),
+                            color: AppTheme.primaryColor,
+                          ),
+                        ),
+                      ),
+                      const IconContainer(), 
+                      buildRunningIcon(),
+                      buildUserProfile(),
+                      buildUserActive(),
                     ],
                   ),
                 ),
-                child: Stack(
-                  children: <Widget>[
-                    Positioned(
-                      top: 60,
-                      left: 0,
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: 830,
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(40)),
-                          color: AppTheme.primaryColor,
-                        ),
-                      ),
-                    ),
-                    const IconContainer(), 
-                    buildRunningIcon(),
-                    buildUserProfile(),
-                    buildUserActive(),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         drawer: buildDrawer(),
