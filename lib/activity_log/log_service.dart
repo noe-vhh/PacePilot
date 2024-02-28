@@ -211,14 +211,6 @@ class LogService {
                 content: SingleChildScrollView(
                   child: buildRunDetailsPage(detailedActivity),
                 ),
-                actions: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Close'),
-                  ),
-                ],
               );
             },
           );

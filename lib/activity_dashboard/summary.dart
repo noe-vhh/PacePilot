@@ -4,7 +4,6 @@
 import 'package:flutter/material.dart';
 
 import 'summary_service.dart';
-
 import '/../assets/theme.dart';
 
 class ActivitySummaryCard extends StatefulWidget {
@@ -69,58 +68,73 @@ class ActivitySummaryCardState extends State<ActivitySummaryCard> {
   // Build the running summary information widget
   Widget buildRunningSummaryInfo() {
     if (isLoading) {
-      return Container(
-        alignment: Alignment.center,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width / 2 - 80),
-          child: const Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
-      );
+      return _buildLoadingIndicator();
     }
 
     if (runningSummaryActiveTime != null) {
-      final hours = runningSummaryActiveTime!.inHours;
-      final minutes = (runningSummaryActiveTime!.inMinutes % 60);
-      final formattedTime = hours > 0 ? '${hours}h ${minutes}m' : '${minutes}m';
-
-      final averagePaceMinutes = runningSummaryAveragePace.floor();
-      final averagePaceSeconds = ((runningSummaryAveragePace * 60) % 60).floor();
-
-      return Container(
-        alignment: Alignment.center,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Running Summary ($selectedRunningSummaryPeriod)',
-                style: AppTheme.labelText3,
-              ),
-              Text(
-                'Total Distance: ${runningSummaryTotalDistance.toStringAsFixed(2)} km',
-                style: AppTheme.bodyText,
-              ),
-              Text(
-                'Average Pace: $averagePaceMinutes:${averagePaceSeconds.toString().padLeft(2, '0')} min/km',
-                style: AppTheme.bodyText,
-              ),
-              Text(
-                'Total Time: $formattedTime',
-                style: AppTheme.bodyText,
-              ),
-            ],
-          ),
-        ),
-      );
+      return _buildRunningSummaryContent();
     } else {
-      return Text(
-        'Running Summary ($selectedRunningSummaryPeriod): No activities recorded for the selected period.',
-        style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
-      );
+      return _buildNoActivitiesMessage();
     }
+  }
+
+  Widget _buildLoadingIndicator() {
+    return Container(
+      alignment: Alignment.center,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width / 2 - 80),
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRunningSummaryContent() {
+    final hours = runningSummaryActiveTime!.inHours;
+    final minutes = (runningSummaryActiveTime!.inMinutes % 60);
+    final formattedTime = hours > 0 ? '${hours}h ${minutes}m' : '${minutes}m';
+
+    final averagePaceMinutes = runningSummaryAveragePace.floor();
+    final averagePaceSeconds = ((runningSummaryAveragePace * 60) % 60).floor();
+
+    return Container(
+      alignment: Alignment.center,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Running Summary ($selectedRunningSummaryPeriod)',
+              style: AppTheme.labelText3,
+            ),
+            Text(
+              'Total Distance: ${runningSummaryTotalDistance.toStringAsFixed(2)} km',
+              style: AppTheme.bodyText,
+            ),
+            Text(
+              'Average Pace: $averagePaceMinutes:${averagePaceSeconds.toString().padLeft(2, '0')} min/km',
+              style: AppTheme.bodyText,
+            ),
+            Text(
+              'Total Time: $formattedTime',
+              style: AppTheme.bodyText,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNoActivitiesMessage() {
+    return SizedBox(
+      width: 300,
+      child: Text(
+        'Running Summary ($selectedRunningSummaryPeriod): No activities recorded for the selected period.',
+        style: AppTheme.bodyText,
+      ),
+    );
   }
 
   @override
