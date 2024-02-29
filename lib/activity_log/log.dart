@@ -1,5 +1,3 @@
-// log.dart
-
 // Importing necessary files
 import 'package:flutter/material.dart';
 
@@ -136,16 +134,22 @@ class LogState extends State<Log> {
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: runningLog.length,
                   itemBuilder: (context, index) {
-                    return InkWell(
-                      onTap: () {
-                        fetchAndShowDetails(runningLog[index]['id'], context);
-                      },
-                      child: RunDetailsWidget(
-                        runDetails: runningLog[index],
-                        onStarTap: () {
-                          toggleFavorite(index);
-                        },
-                      ),
+                    return Column(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            fetchAndShowDetails(runningLog[index]['id'], context);
+                          },
+                          child: RunDetailsWidget(
+                            runDetails: runningLog[index],
+                            onStarTap: () {
+                              toggleFavorite(index);
+                            },
+                          ),
+                        ),
+                        if (index < runningLog.length - 1)
+                          const Divider(),
+                      ],
                     );
                   },
                 ),
@@ -168,6 +172,7 @@ class RunDetailsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

@@ -8,6 +8,8 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
+import '/../assets/theme.dart';
+
 // A service class for handling running logs and related operations
 class LogService {
   // Fetches and sets the running log based on the provided access token
@@ -227,52 +229,58 @@ class LogService {
 
   // Builds a widget for displaying detailed information about a running activity
   static Widget buildRunDetailsPage(Map<String, dynamic> runDetails) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                buildDetailRow('Distance', '${(double.parse(runDetails['distance']?.toString() ?? '0.0') / 1000.0).toStringAsFixed(2)} km'),
-                buildDetailRow('Moving Time', formatDuration(runDetails['elapsed_time'] ?? 0)),
-                buildDetailRow('Start Date', DateFormat.yMd().add_Hms().format(DateTime.parse(runDetails['start_date']))),
-                buildDetailRow('Average Pace', calculatePace(runDetails['distance'] ?? 0.0, runDetails['elapsed_time'] ?? 0)),
-                buildDetailRow('Elevation Gain', '${runDetails['total_elevation_gain'] ?? 0} meters'),
-                buildDetailRow('Calories Burned', '${runDetails['calories'] ?? 0} kcal'),
-                buildDetailRow('Average Heart Rate', '${runDetails['average_heartrate'] ?? 'N/A'} bpm'),
-                buildDetailRow('Max Heart Rate', '${runDetails['max_heartrate'] ?? 'N/A'} bpm'),
-              ],
+    return Material(
+      color: Colors.grey.withOpacity(0.9),
+      borderRadius: BorderRadius.circular(8.0),
+      child: Container(
+        width: 400,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildDetailRow('Distance', '${(double.parse(runDetails['distance']?.toString() ?? '0.0') / 1000.0).toStringAsFixed(2)} km'),
+                  buildDetailRow('Moving Time', formatDuration(runDetails['elapsed_time'] ?? 0)),
+                  buildDetailRow('Start Date', DateFormat.yMd().format(DateTime.parse(runDetails['start_date']))), //removed .add_Hms()
+                  buildDetailRow('Average Pace', calculatePace(runDetails['distance'] ?? 0.0, runDetails['elapsed_time'] ?? 0)),
+                  buildDetailRow('Elevation Gain', '${runDetails['total_elevation_gain'] ?? 0} meters'),
+                  buildDetailRow('Calories Burned', '${runDetails['calories'] ?? 0} kcal'),
+                  buildDetailRow('Average Heart Rate', '${runDetails['average_heartrate'] ?? 'N/A'} bpm'),
+                  buildDetailRow('Max Heart Rate', '${runDetails['max_heartrate'] ?? 'N/A'} bpm'),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   // Builds a row with a label and a value for detailed information
   static Widget buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: AppTheme.labelText3, 
             ),
-          ),
-          Text(value),
-        ],
-      ),
-    );
+            Text(
+              value,
+              style: AppTheme.bodyText, 
+            ),
+          ],
+        ),
+      );
+    }
   }
-}
